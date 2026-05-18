@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 1680 768" width="100%"
+     preserveAspectRatio="xMidYMid meet" role="img"
+     aria-label="Claude SEO — AI Search SEO Console"
+     font-family="JetBrains Mono, monospace">
+<title>Claude SEO — AI Search SEO Console for Claude Code</title>
+<desc>OS-window-style banner. Cream title bar with traffic lights, dark CRT terminal inside with CLAUDE SEO figlet logo + command palette. Animated breathing gradient on the logo and blinking cursor on /seo geo.</desc>
+
+<defs>
+  <style type="text/css"><![CDATA[
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+    .ascii      { font-family: 'JetBrains Mono', 'Cascadia Mono', 'Menlo', monospace; font-size: 22px; font-weight: 700; fill: url(#tealGrad); }
+    .tagline    { font-family: 'Inter', system-ui, sans-serif; font-size: 28px; font-weight: 500; fill: #F0EDE5; letter-spacing: -0.3px; }
+    .sysline    { font-family: 'JetBrains Mono', monospace; font-size: 11px; fill: #2B4A41; letter-spacing: 1.8px; }
+    .sysline-accent { fill: #4F7B6E; }
+    .hud        { font-family: 'JetBrains Mono', monospace; font-size: 10px; fill: #2B4A41; letter-spacing: 1.6px; }
+    .hud-muted  { font-family: 'JetBrains Mono', monospace; font-size: 10px; fill: #5A5750; letter-spacing: 1.6px; }
+    .cmd        { font-family: 'JetBrains Mono', monospace; font-size: 30px; fill: #5A5750; letter-spacing: 0.5px; }
+    .cmd-active { fill: #F0EDE5; }
+    .cmd-slash  { fill: #2B4A41; }
+    .cmd-arg    { fill: #2B4A41; opacity: 0.7; }
+    .cmd-head   { font-family: 'JetBrains Mono', monospace; font-size: 11px; fill: #4F7B6E; letter-spacing: 2px; opacity: 0.65; }
+    .cmd-head-b { fill: #2B4A41; }
+    .accent-line{ fill: #4F7B6E; }
+    .live-dot   { fill: #4F7B6E; }
+    .win-title  { font-family: 'JetBrains Mono', monospace; font-size: 15px; fill: #3D3933; font-weight: 600; }
+  ]]></style>
+
+  <!-- Vertical teal gradient (animated below) -->
+  <linearGradient id="tealGrad" x1="0" y1="-0.3" x2="0" y2="1.3" gradientUnits="objectBoundingBox">
+    <stop offset="0%"   stop-color="#A4D4BD"/>
+    <stop offset="25%"  stop-color="#8BC0A8"/>
+    <stop offset="50%"  stop-color="#6FA38F"/>
+    <stop offset="75%"  stop-color="#4F7B6E"/>
+    <stop offset="100%" stop-color="#2B4A41"/>
+
+    <!-- BREATHING GRADIENT -->
+    <animate attributeName="y1" values="-0.3;0.3;-0.3" dur="4.2s" repeatCount="indefinite"/>
+    <animate attributeName="y2" values="0.7;1.3;0.7"   dur="4.2s" repeatCount="indefinite"/>
+  </linearGradient>
+
+  <pattern id="scanlines" x="0" y="0" width="3" height="3" patternUnits="userSpaceOnUse">
+    <rect width="3" height="2" fill="transparent"/>
+    <rect x="0" y="2" width="3" height="1" fill="rgba(0,0,0,0.18)"/>
+  </pattern>
+</defs>
+
+<!-- ═══════════ OS WINDOW SHELL ═══════════ -->
+<rect x="0.5" y="0.5" width="1679" height="767" rx="10" fill="#FFFFFF" stroke="#a89968" stroke-width="1"/>
+<path d="M 0 10 Q 0 0 10 0 L 1670 0 Q 1680 0 1680 10 L 1680 48 L 0 48 Z" fill="#f5f1e8"/>
+<line x1="0" y1="48" x2="1680" y2="48" stroke="#a89968" stroke-width="1"/>
+<text x="20" y="29" class="win-title">claude-seo.app — Terminal · /seo audit</text>
+<circle cx="1596" cy="24" r="9" fill="#fbbf24" stroke="#a89968" stroke-width="0.7"/>
+<circle cx="1624" cy="24" r="9" fill="#10b981" stroke="#a89968" stroke-width="0.7"/>
+<circle cx="1652" cy="24" r="9" fill="#ef4444" stroke="#a89968" stroke-width="0.7"/>
+
+<!-- ═══════════ TERMINAL CONTENT (dark canvas) ═══════════ -->
+<g transform="translate(0, 48)">
+  <rect width="1680" height="720" fill="#16130F"/>
+  <rect width="1680" height="720" fill="url(#scanlines)" opacity="0.45"/>
+
+  <!-- Inner terminal HUD bar (top) -->
+  <rect x="0" y="0" width="1680" height="26" fill="#0A0807"/>
+  <line x1="0" y1="26" x2="1680" y2="26" stroke="rgba(79,123,110,0.22)" stroke-width="1"/>
+  <circle cx="26" cy="13" r="3" class="live-dot">
+    <animate attributeName="opacity" values="0.4;1;0.4" dur="1.6s" repeatCount="indefinite"/>
+  </circle>
+  <text x="38"   y="17" class="hud">SYS · CLAUDE-SEO</text>
+  <text x="220"  y="17" class="hud">NODE 0x2F · ACTIVE</text>
+  <text x="1660" y="17" class="hud-muted" text-anchor="end">UPTIME 04:12:08</text>
+
+  <!-- Inner terminal status bar (bottom) -->
+  <rect x="0" y="694" width="1680" height="26" fill="#0A0807"/>
+  <line x1="0" y1="694" x2="1680" y2="694" stroke="rgba(79,123,110,0.22)" stroke-width="1"/>
+  <text x="20"   y="711" class="hud">● LINK · STABLE</text>
+  <text x="180"  y="711" class="hud">BUF 1024K</text>
+  <text x="290"  y="711" class="hud">V2.0.0</text>
+  <text x="1450" y="711" class="hud-muted" text-anchor="end">208.140.MAINFRAME.AGRICIDANIEL</text>
+  <text x="1660" y="711" class="hud-muted" text-anchor="end">12:08:20 UTC</text>
+
+  <!-- ASCII logo — CLAUDE -->
+  <text x="120" y="155" class="ascii" xml:space="preserve">
+    <tspan x="120" dy="0">  ██████╗██╗      █████╗ ██╗   ██╗██████╗ ███████╗</tspan>
+    <tspan x="120" dy="26">██╔════╝██║     ██╔══██╗██║   ██║██╔══██╗██╔════╝</tspan>
+    <tspan x="120" dy="26">██║     ██║     ███████║██║   ██║██║  ██║█████╗  </tspan>
+    <tspan x="120" dy="26">██║     ██║     ██╔══██║██║   ██║██║  ██║██╔══╝  </tspan>
+    <tspan x="120" dy="26">╚██████╗███████╗██║  ██║╚██████╔╝██████╔╝███████╗</tspan>
+    <tspan x="120" dy="26"> ╚═════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝</tspan>
+  </text>
+
+  <!-- ASCII logo — SEO -->
+  <text x="120" y="335" class="ascii" xml:space="preserve">
+    <tspan x="120" dy="0">███████╗███████╗ ██████╗</tspan>
+    <tspan x="120" dy="26">██╔════╝██╔════╝██╔═══██╗</tspan>
+    <tspan x="120" dy="26">███████╗█████╗  ██║   ██║</tspan>
+    <tspan x="120" dy="26">╚════██║██╔══╝  ██║   ██║</tspan>
+    <tspan x="120" dy="26">███████║███████╗╚██████╔╝</tspan>
+    <tspan x="120" dy="26">╚══════╝╚══════╝ ╚═════╝</tspan>
+  </text>
+
+  <!-- Divider -->
+  <rect x="120" y="500" width="540" height="3" rx="2" class="accent-line">
+    <animate attributeName="opacity" values="0.7;1;0.7" dur="4.2s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- Tagline -->
+  <text x="120" y="545" class="tagline">AI Search SEO Console</text>
+  <text x="120" y="580" class="sysline">
+    <tspan class="sysline-accent">›</tspan> RUNTIME READY · 25 SUB-SKILLS · 271 TESTS · 8 MCP SERVERS
+  </text>
+
+  <!-- Command palette -->
+  <g transform="translate(1660, 100)">
+    <text class="cmd-head" text-anchor="end" y="0">
+      <tspan class="cmd-head-b">┌─ </tspan>COMMAND PALETTE<tspan class="cmd-head-b"> ─┐</tspan>
+    </text>
+    <text class="cmd" text-anchor="end" y="55"><tspan class="cmd-slash">/</tspan>seo audit</text>
+    <text class="cmd" text-anchor="end" y="105"><tspan class="cmd-slash">/</tspan>seo schema</text>
+    <text class="cmd cmd-active" text-anchor="end" y="155"><tspan class="cmd-slash">/</tspan>seo geo</text>
+    <!-- Blinking cursor block on /seo geo -->
+    <rect x="-3" y="135" width="18" height="26" fill="#F0EDE5">
+      <animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;0.5;0.5;1;1" dur="1s" repeatCount="indefinite"/>
+    </rect>
+    <text class="cmd" text-anchor="end" y="205"><tspan class="cmd-slash">/</tspan>seo sitemap</text>
+    <text class="cmd" text-anchor="end" y="255"><tspan class="cmd-slash">/</tspan>seo plan <tspan class="cmd-arg">&lt;type&gt;</tspan></text>
+    <text class="cmd" text-anchor="end" y="305"><tspan class="cmd-slash">/</tspan>seo hreflang</text>
+    <text class="cmd" text-anchor="end" y="355"><tspan class="cmd-slash">/</tspan>seo competitor-pages</text>
+  </g>
+</g>
+
+</svg>
