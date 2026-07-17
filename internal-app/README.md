@@ -100,7 +100,11 @@ If a skill-level fork is unavoidable, put only the replacement file under `custo
 
 ## Operational limits
 
-- One audit runs at a time to control server load and API spend.
+- One audit may be queued or running at a time.
+- The default Codex model is GPT-5.6 Luna with low reasoning and web search disabled.
+- The workspace accepts at most 3 audits in a rolling 24-hour period and at most 2 per user.
+- Each audit has a 15-minute process timeout and a 2,500-word report target.
+- These application limits complement, but do not replace, a hard spend limit on the dedicated OpenAI project.
 - Restarted in-progress audits are marked failed and can be submitted again.
 - Up to 100 recent audit records are listed in the UI; reports remain on the persistent volume.
 - Reports are Markdown. PDF export and task-tracker integration are not included yet.

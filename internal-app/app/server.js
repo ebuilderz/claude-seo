@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import express from "express";
 import helmet from "helmet";
 import { createAuth } from "./auth.js";
-import { AUDIT_TYPES, JobManager } from "./jobs.js";
+import { AUDIT_TYPES, AuditLimitError, JobManager } from "./jobs.js";
 import { validateAuditUrl } from "./url-safety.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -67,6 +67,7 @@ export async function createApp(options = {}) {
       appDescription: process.env.APP_DESCRIPTION || "Evidence-led technical SEO audits for the internal team.",
       user: req.user.email,
       auditTypes: AUDIT_TYPES,
+      costGuards: jobs.limits(),
     });
   });
 
@@ -101,6 +102,9 @@ export async function createApp(options = {}) {
       const job = await jobs.create({ url, type, requestedBy: req.user.email });
       return res.status(202).json({ audit: job });
     } catch (error) {
+      if (error instanceof AuditLimitError) {
+        return res.status(429).json({ error: error.message });
+      }
       if (error instanceof Error && /URL|HTTP|port|network|address|audited|hostname|resolved/i.test(error.message)) {
         return res.status(400).json({ error: error.message });
       }

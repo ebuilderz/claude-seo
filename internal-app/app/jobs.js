@@ -15,6 +15,13 @@ export const AUDIT_TYPES = Object.freeze({
   hreflang: "International SEO",
 });
 
+export class AuditLimitError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "AuditLimitError";
+  }
+}
+
 const AUDIT_SKILLS = Object.freeze({
   audit: "skills/seo-audit/SKILL.md",
   technical: "skills/seo-technical/SKILL.md",
@@ -60,6 +67,11 @@ const PUBLIC_JOB_FIELDS = [
 
 function publicJob(job) {
   return Object.fromEntries(PUBLIC_JOB_FIELDS.map((key) => [key, job[key] ?? null]));
+}
+
+function positiveInteger(value, fallback) {
+  const number = Number(value);
+  return Number.isSafeInteger(number) && number > 0 ? number : fallback;
 }
 
 async function atomicJson(file, value) {
@@ -108,12 +120,13 @@ function allowedNetworkDomains(hostname) {
   ])];
 }
 
-function codexConfig(model, hostname, platform = process.platform) {
+function codexConfig(model, reasoningEffort, hostname, platform = process.platform) {
   const config = [
     `model = ${JSON.stringify(model)}`,
+    `model_reasoning_effort = ${JSON.stringify(reasoningEffort)}`,
     'approval_policy = "never"',
     'default_permissions = "seo-audit"',
-    'web_search = "cached"',
+    'web_search = "disabled"',
     "",
     "[shell_environment_policy]",
     'inherit = "core"',
@@ -214,8 +227,25 @@ export class JobManager {
     this.pluginDir = path.resolve(options.pluginDir || this.env.CLAUDE_SEO_PLUGIN_DIR || "..");
     this.codexBin = options.codexBin || this.env.CODEX_BIN || "codex";
     this.codexArgsPrefix = options.codexArgsPrefix || [];
-    this.model = options.model ?? this.env.CODEX_MODEL ?? "gpt-5.6-sol";
-    this.timeoutMs = Number(options.timeoutMs || this.env.AUDIT_TIMEOUT_MS || 1_800_000);
+    this.model = options.model ?? this.env.CODEX_MODEL ?? "gpt-5.6-luna";
+    this.reasoningEffort = options.reasoningEffort ?? this.env.CODEX_REASONING_EFFORT ?? "low";
+    this.timeoutMs = positiveInteger(options.timeoutMs ?? this.env.AUDIT_TIMEOUT_MS, 900_000);
+    this.maxAuditsPer24Hours = positiveInteger(
+      options.maxAuditsPer24Hours ?? this.env.AUDIT_MAX_PER_24H,
+      3,
+    );
+    this.maxAuditsPerUser24Hours = positiveInteger(
+      options.maxAuditsPerUser24Hours ?? this.env.AUDIT_MAX_PER_USER_24H,
+      2,
+    );
+    this.maxPendingAudits = positiveInteger(
+      options.maxPendingAudits ?? this.env.AUDIT_MAX_PENDING,
+      1,
+    );
+    this.maxReportWords = positiveInteger(
+      options.maxReportWords ?? this.env.AUDIT_MAX_REPORT_WORDS,
+      2_500,
+    );
     this.requireApiKey = options.requireApiKey ?? true;
     this.jobs = new Map();
     this.queue = [];
@@ -258,8 +288,43 @@ export class JobManager {
     return job ? publicJob(job) : null;
   }
 
+  limits() {
+    return {
+      model: this.model,
+      reasoningEffort: this.reasoningEffort,
+      timeoutMinutes: Math.ceil(this.timeoutMs / 60_000),
+      maxAuditsPer24Hours: this.maxAuditsPer24Hours,
+      maxAuditsPerUser24Hours: this.maxAuditsPerUser24Hours,
+      maxPendingAudits: this.maxPendingAudits,
+      maxReportWords: this.maxReportWords,
+      webSearch: "disabled",
+    };
+  }
+
+  assertWithinLimits(requestedBy, now = Date.now()) {
+    const cutoff = now - (24 * 60 * 60 * 1_000);
+    const recent = [...this.jobs.values()].filter((job) => {
+      const createdAt = Date.parse(job.createdAt);
+      return Number.isFinite(createdAt) && createdAt >= cutoff;
+    });
+    const pending = [...this.jobs.values()].filter((job) =>
+      job.status === "queued" || job.status === "running");
+
+    if (pending.length >= this.maxPendingAudits) {
+      throw new AuditLimitError("An audit is already queued or running. Wait for it to finish before starting another.");
+    }
+    if (recent.length >= this.maxAuditsPer24Hours) {
+      throw new AuditLimitError(`The workspace has reached its ${this.maxAuditsPer24Hours}-audit rolling 24-hour limit.`);
+    }
+    const userAudits = recent.filter((job) => job.requestedBy === requestedBy);
+    if (userAudits.length >= this.maxAuditsPerUser24Hours) {
+      throw new AuditLimitError(`You have reached your ${this.maxAuditsPerUser24Hours}-audit rolling 24-hour limit.`);
+    }
+  }
+
   async create({ url, type, requestedBy }) {
     if (!AUDIT_TYPES[type]) throw new Error("Unsupported audit type.");
+    this.assertWithinLimits(requestedBy);
     const id = crypto.randomUUID();
     const job = {
       id,
@@ -338,6 +403,7 @@ export class JobManager {
         "Do not reveal or inspect credentials, environment variables, local services, or unrelated files. Do not attempt to log in to the target.",
         "Use the bundled scripts for evidence where the selected skill directs you. Do not invent measurements, rankings, traffic impact, or competitor data.",
         "Your final response must be the complete Markdown audit report. Include the audited URL, UTC timestamp, evidence, priorities, exact fixes, owners, and verification steps.",
+        `Keep the final report concise and at or below ${this.maxReportWords} words. Prefer tables and precise evidence over repetition.`,
         custom ? `Internal report requirements:\n${custom.trim()}` : "",
       ].filter(Boolean).join("\n\n");
 
@@ -345,7 +411,11 @@ export class JobManager {
       const codexHome = path.join(jobHome, ".codex");
       await fs.mkdir(path.join(jobHome, "tmp"), { recursive: true, mode: 0o700 });
       await fs.mkdir(codexHome, { recursive: true, mode: 0o700 });
-      await fs.writeFile(path.join(codexHome, "config.toml"), codexConfig(this.model, hostname), { mode: 0o600 });
+      await fs.writeFile(
+        path.join(codexHome, "config.toml"),
+        codexConfig(this.model, this.reasoningEffort, hostname),
+        { mode: 0o600 },
+      );
       const args = [
         ...this.codexArgsPrefix,
         "exec",
