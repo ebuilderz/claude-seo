@@ -51,6 +51,7 @@ jobs:
               --base main \
               --head "$branch" \
               --draft \
+              --label "upstream-update" \
               --title "chore: sync latest AgricIDaniel/claude-seo" \
               --body "Automated upstream merge. Review the changelog and checks before merging; the private app lives under internal-app/ and remains separate from upstream-owned files."
           else
