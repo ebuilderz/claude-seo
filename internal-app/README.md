@@ -37,7 +37,7 @@ Use a dedicated OpenAI project and project-level spend limit for this service. A
 
 ## Authentication
 
-Cloudflare Access is the recommended production mode. Create a self-hosted Access application for `audit.abletest.in`, allow only the team domain or named accounts, and set:
+Cloudflare Access is the recommended production mode. Create a self-hosted Access application for `audit.ebuilderz.in`, allow only the team domain or named accounts, and set:
 
 ```env
 AUTH_MODE=cloudflare-access
@@ -84,7 +84,7 @@ Create an application from `ebuilderz/claude-seo` with these settings:
 - Base directory: `/`
 - Dockerfile: `/internal-app/Dockerfile`
 - Exposed port: `3000`
-- Domain: `https://audit.abletest.in`
+- Domain: `https://audit.ebuilderz.in`
 - Health check: `/healthz`
 - Persistent volume destination: `/app/data`
 
