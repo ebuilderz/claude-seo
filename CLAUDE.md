@@ -4,8 +4,9 @@
 
 This repository contains **Claude SEO**, a Tier 4 Claude Code skill for comprehensive
 SEO analysis across all industries. It follows the Agent Skills open standard and the
-3-layer architecture (directive, orchestration, execution). 20 core sub-skills (+ 3
-extensions), 15 core subagents (+ 2 extension agents, 17 total), and an extensible reference
+3-layer architecture (directive, orchestration, execution). 25 sub-skills (21 core +
+1 orchestrator + 1 framework integration + 2 extension mirrors), 18 sub-agents (15 core +
+1 framework integration + 2 extension mirrors), and an extensible reference
 system cover technical SEO, content quality,
 schema markup, image optimization, sitemap architecture, AI search optimization,
 local SEO (GBP, citations, reviews, map pack), maps intelligence, semantic topic
@@ -20,9 +21,9 @@ claude-seo/
   CONTRIBUTORS.md                    # Community credits (Pro Hub Challenge)
   AGENTS.md                          # Multi-platform agent instructions (Cursor, Antigravity)
   .claude-plugin/
-    plugin.json                    # Plugin manifest (v1.9.0)
+    plugin.json                    # Plugin manifest (v2.2.0)
     marketplace.json               # Marketplace catalog for distribution
-  skills/                            # 23 skills (auto-discovered)
+  skills/                            # 25 sub-skills (auto-discovered)
     seo/                           # Main orchestrator skill
       SKILL.md                     # Entry point, routing table, core rules
       references/                  # On-demand knowledge files (12 files)
@@ -61,7 +62,7 @@ claude-seo/
     seo-image-gen/              # AI image generation for SEO assets (extension mirror)
       SKILL.md
       references/                # Image gen reference files (7 files)
-  agents/                          # 17 subagents (auto-discovered)
+  agents/                          # 18 subagents (auto-discovered)
     seo-technical.md             # Crawlability, indexability, security
     seo-content.md               # E-E-A-T, readability, thin content
     seo-schema.md                # Structured data validation
@@ -81,7 +82,7 @@ claude-seo/
     seo-ecommerce.md             # E-commerce SEO analysis
   hooks/                           # Quality gate hooks
     hooks.json                   # PostToolUse schema validation
-  scripts/                         # Python execution scripts (28 tracked + 2 dev-only)
+  scripts/                         # Python execution scripts (50 tracked + dev-only helpers)
     google_auth.py               # Credential management (OAuth, SA, API key, 4-tier detection)
     backlinks_auth.py            # Backlink API credential management (Moz, Bing)
     moz_api.py                   # Moz Link Explorer API (DA/PA, spam, domains, anchors)
@@ -109,6 +110,29 @@ claude-seo/
     dataforseo_costs.py          # DataForSEO cost estimation and budget tracking
     dataforseo_merchant.py       # Google Shopping / Amazon data fetching
     dataforseo_normalize.py      # DataForSEO response normalization utility
+    sync_flow.py                 # FLOW prompt library sync (GitHub API, CC BY 4.0 headers, --dry-run, --ref)
+    url_safety.py                # Canonical URL/SSRF safety module (validate, DNS-pin, safe fetch)
+    render_page.py               # Shared headless renderer (SPA-aware, Playwright)
+    lcp_subparts.py              # LCP subparts breakdown via CrUX API
+    preload_check.py             # Speculation Rules / bfcache / prerender / preload detector
+    agent_ux_check.py            # Agent-friendly page auditor
+    content_quality.py           # QRG-aligned content quality detector
+    content_humanize.py          # AI-pattern remover (rewrites AI-typical phrasing)
+    content_verify.py            # Claim extractor + citation-gap detector
+    schema_generate.py           # JSON-LD generators for high-leverage v2 schema types
+    schema_ecommerce_validate.py # Product schema validator (merchant-listing requirements)
+    iptc_ai_label.py             # IPTC DigitalSourceType audit/injection for AI imagery
+    parasite_risk.py             # Parasite-SEO risk scanner
+    gbp_deprecation_lint.py      # GBP feature-deprecation linter
+    domain_history.py            # Expired-domain heritage check
+    seo_updates.py               # Primary-source Google updates query tool
+    indexnow_submit.py           # IndexNow submitter
+    ucp_check.py                 # UCP (Universal Commerce Protocol) profile auditor
+    unlighthouse_run.py          # Unlighthouse CLI wrapper (site-wide Lighthouse)
+    validate_backlink_report.py  # Backlink report validation
+    portability_check.py         # Cross-platform portability lint for SKILL.md files
+    release_sign.py              # SHA-256 manifest generator for release signing
+    verify_release.py            # Verify checkout integrity against a release manifest
     mobile_analysis.py           # Mobile rendering analysis (gitignored, dev-only)
   schema/                          # Schema.org JSON-LD templates
   extensions/                      # Optional add-on install helpers
@@ -126,6 +150,7 @@ claude-seo/
 | `/seo page <url>` | Deep single-page analysis |
 | `/seo technical <url>` | Technical SEO audit (9 categories) |
 | `/seo content <url>` | E-E-A-T and content quality analysis |
+| `/seo content-brief <topic>` | Detailed SEO content brief: keywords, outline, internal links |
 | `/seo schema <url>` | Schema.org detection, validation, generation |
 | `/seo sitemap <url>` | XML sitemap analysis or generation |
 | `/seo images <url or optimize>` | Image SEO: on-page audit, SERP analysis, file optimization |
@@ -146,6 +171,7 @@ claude-seo/
 | `/seo drift compare <url>` | Compare current state to stored baseline |
 | `/seo drift history <url>` | Show drift history over time |
 | `/seo ecommerce <url>` | E-commerce SEO: product schema, marketplace intelligence |
+| `/seo flow <url>` | Apply the FLOW framework: stage prompts and structured search-and-conversion output |
 | `/seo firecrawl [command] <url>` | Full-site crawling and site mapping (extension) |
 | `/seo dataforseo [command]` | Live SEO data via DataForSEO MCP (extension) |
 | `/seo image-gen [use-case] <desc>` | AI image generation for SEO assets (extension) |
@@ -158,7 +184,7 @@ claude-seo/
 - Follow kebab-case naming for all skill directories
 - Agents invoked via Agent tool, never via Bash
 - Python dependencies install into `~/.claude/skills/seo/.venv/`
-- Test with `python -m pytest tests/` after changes (if applicable)
+- Test with `python3 -m pytest tests/` after changes (if applicable)
 
 ## Security Rules
 
@@ -196,6 +222,61 @@ Part of the Claude Code skill family:
 2. **Industry Detection**: Auto-detect SaaS, e-commerce, local, publisher, agency
 3. **Parallel Execution**: Full audits spawn up to 15 subagents simultaneously
 4. **Extension System**: DataForSEO MCP for live data, Firecrawl MCP for site crawling, Banana MCP for AI image generation
+
+## Repository Topology (public + private)
+
+This project is mirrored across two GitHub remotes that share git history.
+Both originate from the same local checkout; neither is a GitHub fork of
+the other (different orgs, no parent/child relationship in the GitHub UI).
+
+| Remote | URL | Visibility | Role |
+|---|---|---|---|
+| `origin` | `https://github.com/AgriciDaniel/claude-seo` | **Public** | Published distribution. Users discover, clone, and install from here. `main` only reflects released history. |
+| `aimh` | `https://github.com/AI-Marketing-Hub/claude-seo` | **Private** | Working repo inside the AI Marketing Hub org. Daily development. v2 branch + post-release work lives here before promotion to public. |
+
+### Workflow
+
+Daily development:
+- Work on `v2` (or feature branches off `v2`) locally.
+- `git push aimh <branch>` to publish work-in-progress to the private repo
+  (Dependabot, Actions, and CI run there).
+
+Promoting to public on release:
+1. Merge `v2` into local `main` when ready to release (fast-forward).
+2. Tag the release locally (`git tag -a vX.Y.Z`).
+3. Push the tag and main to **both** remotes in this order:
+   - First: `git push aimh main && git push aimh vX.Y.Z`
+   - Then: `git push origin main && git push origin vX.Y.Z`
+   - The "tag before merge" sequence (see `feedback_push_caution` memory)
+     applies on `origin` to avoid the `curl|bash` outage window where
+     users pull a tag that doesn't yet point at code on `main`.
+4. `gh release create vX.Y.Z --repo AgriciDaniel/claude-seo` (public-only).
+5. `/release-blog` to publish the release post.
+
+### Safety rules
+
+- **Never push to `origin/main` autonomously.** The public is release-only;
+  pushes are user-authorized per-release.
+- **`aimh` accepts day-to-day pushes.** No release-gate ceremony required
+  for the private remote.
+- **Tags push to private first.** v2.0.0 is the current example: tag lives
+  on `aimh` (private) but not yet on `origin` (public) — that's intentional
+  until release.
+- **History stays shared.** Never rewrite history on either remote with
+  force-push unless explicitly authorized for that specific operation.
+
+### Verifying the topology
+
+```bash
+# Both remotes configured
+git remote -v        # expects: origin (public) + aimh (private)
+
+# Both share main HEAD
+git ls-remote --heads aimh main
+git ls-remote --heads origin main   # origin = aimh/main + 1 public-branding commit (intentional; see docs/WORKFLOW-public-private.md)
+```
+
+Full workflow reference: `docs/WORKFLOW-public-private.md`.
 
 ## Release Blog Post
 

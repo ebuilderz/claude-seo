@@ -5,12 +5,12 @@ description: >
   URL structure, mobile, Core Web Vitals, structured data, JavaScript rendering,
   and IndexNow protocol. Use when user says "technical SEO", "crawl issues",
   "robots.txt", "Core Web Vitals", "site speed", or "security headers".
-user-invokable: true
+user-invocable: true
 argument-hint: "[url]"
 license: MIT
 metadata:
   author: AgriciDaniel
-  version: "1.9.0"
+  version: "2.2.0"
   category: seo
 ---
 
@@ -133,6 +133,35 @@ Google updated its JavaScript SEO documentation in December 2025 with critical c
 - Supported by search engines other than Google
 - Recommend implementation for faster indexing on non-Google engines
 
+## Agent-Friendly Pages (forward-looking)
+
+AI agents (not just AI summarizers) increasingly read sites through three
+channels: vision models on screenshots, raw HTML/DOM, and the **accessibility
+tree** (the cleanest signal). Audit criteria — semantic HTML (real `<button>`
+and `<a>`, not `<div onclick>`), label associations, interactive target sizing,
+layout stability across templates, `cursor: pointer` correctness — live in
+`references/agent-friendly-pages.md`.
+
+### Audit command
+
+```bash
+# Render with Playwright + capture accessibility tree, then score
+python3 scripts/agent_ux_check.py https://example.com --json
+```
+
+The scanner outputs an Agent-UX score (0-100) plus itemized issues:
+- HTML findings: real buttons / anchors, `<div onclick>` widgets, semantic
+  landmarks, inputs without `<label for>`, inputs without ARIA labels
+- Accessibility tree findings: total nodes, interactive nodes, unnamed
+  interactive elements, `role="generic"` ratio
+
+The accessibility-tree snapshot uses Playwright's
+`page.accessibility.snapshot(interesting_only=False)`. To capture the tree
+without scoring, use `python3 scripts/render_page.py <url> --a11y-tree --json`.
+
+Surface findings as **opportunities**, not failures. The standards (WebMCP,
+agent UX heuristics) are early — don't gate audits on a sub-100 score.
+
 ## Output
 
 ### Technical Score: XX/100
@@ -161,7 +190,7 @@ If DataForSEO MCP tools are available, use `on_page_instant_pages` for real page
 
 ## Google API Integration (Optional)
 
-If Google API credentials are configured, use `python scripts/pagespeed_check.py <url> --json` for real PSI + CrUX field data (replaces lab-only CWV estimates), `python scripts/crux_history.py <url> --json` for 25-week CWV trends, and `python scripts/gsc_inspect.py <url> --json` for real indexation status per URL.
+If Google API credentials are configured, use `python3 scripts/pagespeed_check.py <url> --json` for real PSI + CrUX field data (replaces lab-only CWV estimates), `python3 scripts/crux_history.py <url> --json` for 25-week CWV trends, and `python3 scripts/gsc_inspect.py <url> --json` for real indexation status per URL.
 
 ## Error Handling
 
