@@ -112,12 +112,17 @@ export async function createApp(options = {}) {
     }
   });
 
+  app.use("/api", (_req, res) => res.status(404).json({ error: "API route not found." }));
+
   app.use(express.static(publicDir, { extensions: ["html"], maxAge: "1h" }));
   app.get("/*splat", (_req, res) => res.sendFile(path.join(publicDir, "index.html")));
 
   app.use((error, _req, res, _next) => {
+    if (error instanceof SyntaxError && error.status === 400 && error.type === "entity.parse.failed") {
+      return res.status(400).json({ error: "Request body must be valid JSON." });
+    }
     console.error(error);
-    res.status(500).json({ error: "The request could not be completed." });
+    return res.status(500).json({ error: "The request could not be completed." });
   });
 
   return app;
