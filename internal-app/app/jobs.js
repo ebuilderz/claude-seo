@@ -120,13 +120,16 @@ function allowedNetworkDomains(hostname) {
   ])];
 }
 
-function codexConfig(model, reasoningEffort, hostname, platform = process.platform) {
+export function codexConfig(model, reasoningEffort, hostname, platform = process.platform) {
   const config = [
     `model = ${JSON.stringify(model)}`,
     `model_reasoning_effort = ${JSON.stringify(reasoningEffort)}`,
     'approval_policy = "never"',
     'default_permissions = "seo-audit"',
     'web_search = "disabled"',
+    "",
+    "[features]",
+    "multi_agent = false",
     "",
     "[shell_environment_policy]",
     'inherit = "core"',
@@ -149,7 +152,7 @@ function codexConfig(model, reasoningEffort, hostname, platform = process.platfo
       '"/dev/shm" = "write"',
       '"/opt/claude-seo/.venv" = "read"',
       '"/ms-playwright" = "read"',
-      '"/proc/*/environ" = "deny"',
+      '"/proc" = "deny"',
       '"/run/secrets" = "deny"',
     );
   }

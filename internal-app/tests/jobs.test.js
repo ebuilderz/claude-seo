@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { AuditLimitError, childEnvironment, JobManager } from "../app/jobs.js";
+import { AuditLimitError, childEnvironment, codexConfig, JobManager } from "../app/jobs.js";
 
 const fixture = fileURLToPath(new URL("./fixtures/fake-codex.js", import.meta.url));
 
@@ -29,6 +29,13 @@ test("passes only the dedicated key and runtime essentials to Codex", () => {
   assert.equal(env.BASIC_AUTH_PASSWORD, undefined);
   assert.equal(env.CF_ACCESS_AUD, undefined);
   assert.equal(env.HOME, "/tmp/job");
+});
+
+test("keeps Linux sandbox setup scoped and disables subagent fan-out", () => {
+  const config = codexConfig("gpt-5.6-luna", "low", "example.com", "linux");
+  assert.match(config, /\[features\]\nmulti_agent = false/);
+  assert.match(config, /"\/proc" = "deny"/);
+  assert.doesNotMatch(config, /"\/proc\/\*\/environ"/);
 });
 
 test("persists a queued audit and its completed Codex report", async () => {
@@ -80,7 +87,7 @@ test("persists a queued audit and its completed Codex report", async () => {
     assert.match(config, /default_permissions = "seo-audit"/);
     assert.match(config, /\[permissions\.seo-audit\.network\.domains\]/);
     assert.match(config, /"example\.com" = "allow"/);
-    if (process.platform !== "win32") assert.match(config, /"\/proc\/\*\/environ" = "deny"/);
+    if (process.platform !== "win32") assert.match(config, /"\/proc" = "deny"/);
     assert.match(config, /exclude = \["CODEX_API_KEY"/);
     await assert.rejects(() => fs.access(path.join(directory, ".home")));
     assert.doesNotMatch(await fs.readFile(path.join(directory, "runner.jsonl"), "utf8"), /sk-test-not-a-real-key/);
