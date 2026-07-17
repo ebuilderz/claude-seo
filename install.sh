@@ -9,8 +9,10 @@ main() {
     AGENT_DIR="${HOME}/.claude/agents"
     REPO_URL="https://github.com/AgriciDaniel/claude-seo"
     # Pin to a specific release tag to prevent silent updates from main.
+    # This default MUST be bumped on every release. CI guard
+    # (tests/test_manifest_consistency.py) enforces this matches plugin.json.
     # Override: CLAUDE_SEO_TAG=main bash install.sh
-    REPO_TAG="${CLAUDE_SEO_TAG:-v1.9.0}"
+    REPO_TAG="${CLAUDE_SEO_TAG:-v2.2.0}"
 
     echo "════════════════════════════════════════"
     echo "║   Claude SEO - Installer             ║"
@@ -84,6 +86,8 @@ main() {
         cp -r "${TEMP_DIR}/claude-seo/hooks/"* "${SKILL_DIR}/hooks/"
         chmod +x "${SKILL_DIR}/hooks/"*.sh 2>/dev/null || true
         chmod +x "${SKILL_DIR}/hooks/"*.py 2>/dev/null || true
+        # Manual installs copy hook files only; enforcement loads through the plugin manifest.
+        echo "  Note: hook enforcement requires plugin install (/plugin install ${REPO_URL}); manual hook copy is best-effort."
     fi
 
     # Copy extensions (optional add-ons: dataforseo, banana)
@@ -152,6 +156,7 @@ main() {
     echo "  2. Run commands:       /seo audit https://example.com"
     echo ""
     echo "Python deps location: ${SKILL_DIR}/requirements.txt"
+    echo "Inspect remote scripts before piping them to bash."
     echo "To uninstall: curl -fsSL ${REPO_URL}/raw/main/uninstall.sh | bash"
 }
 

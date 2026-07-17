@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Python Syntax Check
@@ -20,32 +23,58 @@ jobs:
 
       - name: Check Python syntax
         run: |
-          python3 -m py_compile scripts/fetch_page.py
-          python3 -m py_compile scripts/parse_html.py
-          python3 -m py_compile scripts/analyze_visual.py
-          python3 -m py_compile scripts/capture_screenshot.py
-          python3 -m py_compile scripts/google_auth.py
-          python3 -m py_compile scripts/pagespeed_check.py
-          python3 -m py_compile scripts/crux_history.py
-          python3 -m py_compile scripts/gsc_query.py
-          python3 -m py_compile scripts/gsc_inspect.py
-          python3 -m py_compile scripts/indexing_notify.py
-          python3 -m py_compile scripts/ga4_report.py
-          python3 -m py_compile scripts/google_report.py
-          python3 -m py_compile scripts/youtube_search.py
-          python3 -m py_compile scripts/nlp_analyze.py
-          python3 -m py_compile scripts/keyword_planner.py
-          python3 -m py_compile scripts/backlinks_auth.py
-          python3 -m py_compile scripts/moz_api.py
-          python3 -m py_compile scripts/bing_webmaster.py
-          python3 -m py_compile scripts/commoncrawl_graph.py
-          python3 -m py_compile scripts/verify_backlinks.py
-          python3 -m py_compile scripts/validate_backlink_report.py
-          python3 -m py_compile scripts/dataforseo_costs.py
-          python3 -m py_compile scripts/dataforseo_merchant.py
-          python3 -m py_compile scripts/dataforseo_normalize.py
-          python3 -m py_compile scripts/drift_baseline.py
-          python3 -m py_compile scripts/drift_compare.py
-          python3 -m py_compile scripts/drift_report.py
-          python3 -m py_compile scripts/drift_history.py
-          echo "All 28 scripts passed syntax check"
+          mapfile -t PYFILES < <(git ls-files 'scripts/*.py')
+          python3 -m py_compile "${PYFILES[@]}"
+          echo "All ${#PYFILES[@]} scripts passed syntax check"
+
+  test:
+    name: Test suite (manifests + sync_flow)
+    runs-on: ubuntu-latest
+    env:
+      # gh CLI honors GH_TOKEN automatically; sync_flow.py uses gh for auth.
+      # Without this, anonymous API requests hit GitHub's 60/hr per-IP rate
+      # limit and the sync_flow dry-run test fails on shared-runner IPs.
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.10"
+
+      - name: Install runtime + test deps
+        # Tests import scripts that import url_safety.py (and others), which
+        # require the full runtime dependency set at module-import time. The
+        # prior minimal install (pytest + beautifulsoup4) broke when Phase J/K
+        # tests added imports through url_safety -> requests. Installing from
+        # requirements.txt matches the documented user install path and keeps
+        # CI in sync with the runtime contract.
+        run: pip install -r requirements.txt pytest
+
+      - name: Run pytest
+        run: pytest tests/ -v
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Scan tracked files for leaked credentials
+        run: |
+          set -uo pipefail
+          # High-signal credential patterns. Test fixtures and documented
+          # placeholders are allowlisted; auth-setup.md ships a private-key
+          # placeholder (BEGIN PRIVATE KEY\n...) that is not a real key.
+          PATTERN='AIza[0-9A-Za-z_-]{35}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{40,}|gh[ous]_[A-Za-z0-9]{36}|AKIA[0-9A-Z]{16}|GOCSPX-[A-Za-z0-9_-]{20,}|sk-(proj-)?[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}'
+          HITS=$(git ls-files -z \
+            | xargs -0 grep -nIEH "$PATTERN" 2>/dev/null \
+            | grep -vE 'DUMMY|EXAMPLE|YOUR_|REDACTED|placeholder|<[A-Z_]+>' \
+            | grep -vE '^tests/|/auth-setup\.md:' || true)
+          if [ -n "$HITS" ]; then
+            echo "::error::Potential leaked credentials in tracked files:"
+            echo "$HITS"
+            exit 1
+          fi
+          echo "Secret scan clean: no credentials detected in tracked files."

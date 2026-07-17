@@ -10,12 +10,12 @@ description: >
   Business Profile", "GBP", "map pack", "local pack", "citations",
   "NAP consistency", "local rankings", "service area", "multi-location",
   or "local search".
-user-invokable: true
+user-invocable: true
 argument-hint: "[url]"
 license: MIT
 metadata:
   author: AgriciDaniel
-  version: "1.9.0"
+  version: "2.2.0"
   category: seo
 ---
 
@@ -63,7 +63,7 @@ Detect from page signals before analysis. This determines which checks apply.
 
 ## Industry Vertical Detection
 
-Detect from page signals and GBP category patterns. Routes to industry-specific checks from `references/local-schema-types.md`.
+Detect from page signals and GBP category patterns. Routes to industry-specific checks from `../seo/references/local-schema-types.md`.
 
 | Vertical | Detection Signals |
 |----------|------------------|
@@ -167,7 +167,7 @@ Citations declining for traditional pack rankings but **3 of top 5 AI visibility
   - Facebook business page references
 - Apple Business Connect awareness (usage doubled to 27%, BrightLocal 2026 -- recommend claiming)
 - Bing Places awareness (powers ChatGPT, Copilot, Alexa -- recommend claiming and optimizing)
-- Industry-specific directory recommendations: load `references/local-schema-types.md` for per-vertical citation sources
+- Industry-specific directory recommendations: load `../seo/references/local-schema-types.md` for per-vertical citation sources
 - Data aggregator awareness: Data Axle, Foursquare, Neustar/TransUnion (recommend submission for downstream distribution)
 
 **Scoring guide:**
@@ -183,14 +183,14 @@ Schema is NOT a direct ranking factor (John Mueller confirmed). But enables rich
 - LocalBusiness schema presence (extract JSON-LD blocks)
 - Required properties: `name`, `address` with PostalAddress sub-properties
 - Recommended properties: `geo` (minimum 5 decimal places, Confirmed), `openingHoursSpecification`, `telephone`, `url`, `priceRange` (<100 chars), `image`, `aggregateRating`
-- **Correct subtype for industry** -- load `references/local-schema-types.md`:
+- **Correct subtype for industry** -- load `../seo/references/local-schema-types.md`:
   - Restaurant using `Restaurant` not generic `LocalBusiness`
   - Legal using `LegalService` not deprecated `Attorney`
   - Auto dealer using `AutoDealer` not deprecated `VehicleListing`
   - Healthcare using `MedicalClinic`/`Hospital`/`Dentist` not generic `MedicalBusiness`
 - SAB-specific: `areaServed` with named cities (recommended, not in Google's official list but Schema.org supported)
 - Multi-location: each location page has own LocalBusiness with unique `@id`, linked via `branchOf` to Organization on homepage
-- Industry-specific schema patterns (per `references/local-schema-types.md`):
+- Industry-specific schema patterns (per `../seo/references/local-schema-types.md`):
   - Restaurant: Menu + MenuSection + MenuItem + ReserveAction
   - Healthcare: Physician (Person) + MedicalSpecialty + sameAs to NPI
   - Legal: LegalService + Person + Service (practice areas)
@@ -244,8 +244,8 @@ Key local AI facts:
 ## Reference Files
 
 Load on-demand as needed:
-- `references/local-seo-signals.md`: Ranking factors, review benchmarks, citation tiers, GBP feature status, algorithm updates
-- `references/local-schema-types.md`: LocalBusiness subtypes by industry, schema patterns, citation sources per vertical
+- `../seo/references/local-seo-signals.md`: Ranking factors, review benchmarks, citation tiers, GBP feature status, algorithm updates
+- `../seo/references/local-schema-types.md`: LocalBusiness subtypes by industry, schema patterns, citation sources per vertical
 
 ---
 
@@ -311,3 +311,7 @@ If DataForSEO MCP tools are available, use `local_business_data` for live GBP da
 | NAP not found in page HTML | Check schema and meta tags. If still absent, flag as Critical issue. Recommend adding visible NAP to footer and contact page. |
 | Industry vertical unclear | Present the top two detected verticals with supporting signals. Ask the user to confirm before applying industry-specific recommendations. |
 | Multi-location with 50+ location pages | Apply the quality gates from seo orchestrator: WARNING at 30+ pages (enforce 60%+ unique), HARD STOP at 50+ pages (require user justification before continuing). |
+
+## FLOW Framework Integration
+
+For prompt-guided local optimization, use `/seo flow local <url>` — FLOW's 11 local-stage prompts cover GBP optimization, meta descriptions, title tags, and structured local audit workflows.

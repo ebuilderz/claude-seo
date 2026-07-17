@@ -1,0 +1,22 @@
+{
+  "name": "ebuilderz-seo-audit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Private, Coolify-ready Codex web runner for claude-seo.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node app/server.js",
+    "dev": "node --watch app/server.js",
+    "test": "node --test",
+    "check": "node --check app/server.js && node --check app/jobs.js && node --check app/auth.js && node --check app/url-safety.js"
+  },
+  "dependencies": {
+    "express": "5.1.0",
+    "helmet": "8.1.0",
+    "ipaddr.js": "2.2.0",
+    "jose": "6.1.2"
+  }
+}

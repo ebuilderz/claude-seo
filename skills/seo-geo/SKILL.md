@@ -8,16 +8,33 @@ description: >
   platform-specific optimization. Use when user says "AI Overviews", "SGE",
   "GEO", "AI search", "LLM optimization", "Perplexity", "AI citations",
   "ChatGPT search", or "AI visibility".
-user-invokable: true
+user-invocable: true
 argument-hint: "[url]"
 license: MIT
 metadata:
   author: AgriciDaniel
-  version: "1.9.0"
+  version: "2.2.0"
   category: seo
 ---
 
-# AI Search / GEO Optimization (February 2026)
+# AI Search / GEO Optimization (May 2026)
+
+## Primary Source: Google's AI Optimization Guide
+
+Google's official position, published under Search Central docs:
+
+> "Optimizing for generative AI search is **still SEO** from Google's
+> perspective. AEO and GEO are rebranded labels for the same work."
+
+Read `references/google-ai-optimization-guide.md` for the full synthesis,
+myth-busting list (`llms.txt`, chunking, AI-rephrasing, mention-farming —
+all rejected by Google as ineffective), and the Who/How/Why test for
+content quality.
+
+Audits should frame GEO findings as **SEO fundamentals applied to AI-search
+surfaces**, not as a separate optimization discipline. When community
+recommendations contradict Google's primary source, defer to Google and note
+the contradiction in the report.
 
 ## Key Statistics
 
@@ -25,6 +42,8 @@ metadata:
 |--------|-------|--------|
 | AI Overviews reach | 1.5 billion users/month across 200+ countries | Google |
 | AI Overviews query coverage | 50%+ of all queries | Industry data |
+| AI Mode monthly users | 1B+ (surpassed May 2026) | Google |
+| AI Mode model | Gemini 3.5 Flash (default, global, since I/O 2026) | Google |
 | AI-referred sessions growth | 527% (Jan-May 2025) | SparkToro |
 | ChatGPT weekly active users | 900 million | OpenAI |
 | Perplexity monthly queries | 500+ million | Perplexity |
@@ -50,7 +69,9 @@ metadata:
 
 ### 1. Citability Score (25%)
 
-**Optimal passage length: 134-167 words** for AI citation.
+**Optimal passage length: 134-167 words** for AI citation. And **~44% of AI
+citations come from the first 30% of a page** (SE Ranking study) — front-load
+your most citable, self-contained answer rather than burying it below the fold.
 
 **Strong signals:**
 - Clear, quotable sentences with specific facts/statistics
@@ -100,6 +121,7 @@ Content with multi-modal elements sees **156% higher selection rates**.
 **Strong signals:**
 - Author byline with credentials
 - Publication date and last-updated date
+- **Recency** — content under 3 months old is ~3x more likely to be cited in AI answers; pages left stale 6+ months lose citation eligibility (SE Ranking, 1.3M-citation study). A scheduled refresh program is one of the highest-leverage GEO plays.
 - Citations to primary sources (studies, official docs, data)
 - Organization credentials and affiliations
 - Expert quotes with attribution
@@ -146,6 +168,8 @@ Check `robots.txt` for these AI crawlers:
 
 ## llms.txt Standard
 
+Read `references/llmstxt-evidence.md` for the primary-source evidence (Mueller, Illyes, SE Ranking 300k-domain study, OtterlyAI server-log audit) on why `/llms.txt` is not currently a citation lever for major AI search systems. claude-seo reports presence but assigns no citation-ranking weight.
+
 The emerging **llms.txt** standard provides AI crawlers with structured content guidance.
 
 **Location:** `/llms.txt` (root of domain)
@@ -186,10 +210,17 @@ New standard (December 2025) for machine-readable AI licensing terms.
 
 | Platform | Key Citation Sources | Optimization Focus |
 |----------|---------------------|-------------------|
-| **Google AI Overviews** | Top-10 ranking pages (92%) | Traditional SEO + passage optimization |
+| **Google AI Overviews** | Strongly ranking-correlated — cites pages that already rank well | Traditional SEO + passage optimization |
+| **Google AI Mode** (Gemini 3.5 Flash) | Weakly ranking-correlated; broader pool (~9 domains cited/query, Ahrefs) | Distinct surface: freshness, entity authority, citable passages beyond position 5 |
 | **ChatGPT** | Wikipedia (47.9%), Reddit (11.3%) | Entity presence, authoritative sources |
 | **Perplexity** | Reddit (46.7%), Wikipedia | Community validation, discussions |
 | **Bing Copilot** | Bing index, authoritative sites | Bing SEO, IndexNow |
+
+> **Two Google citation engines, not one.** AI Mode and AI Overviews reach the
+> same conclusion ~86% of the time but cite the same URLs only **13.7%** of the
+> time (Ahrefs study, 540K query pairs). Treat them as separate surfaces: ranking
+> well in classic Search feeds AI Overviews, but AI Mode draws from a broader pool
+> where freshness and entity authority outweigh raw position. Score both.
 
 ---
 
@@ -249,3 +280,7 @@ If DataForSEO MCP tools are available, use `ai_optimization_chat_gpt_scraper` to
 | AI crawlers blocked by robots.txt | Report exactly which crawlers are blocked and which are allowed. Provide specific robots.txt directives to add for enabling AI search visibility. |
 | No llms.txt found | Note the absence and provide a ready-to-use llms.txt template based on the site's content structure. |
 | No structured data detected | Report the gap and provide specific schema recommendations (Article, Organization, Person) for improving AI discoverability. |
+
+## FLOW Framework Integration
+
+For prompt-guided AI content optimization, use `/seo flow optimize <url>` — FLOW's 21 optimize-stage prompts complement GEO's citability and structure analysis with evidence-led AI prompts.
