@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { childEnvironment, JobManager } from "../app/jobs.js";
+import { AuditLimitError, childEnvironment, JobManager } from "../app/jobs.js";
 
 const fixture = fileURLToPath(new URL("./fixtures/fake-codex.js", import.meta.url));
 
@@ -74,6 +74,9 @@ test("persists a queued audit and its completed Codex report", async () => {
     const args = JSON.parse(await fs.readFile(path.join(directory, "workspace", "runner-args.json"), "utf8"));
     assert.ok(args.includes("--strict-config"));
     const config = await fs.readFile(path.join(directory, "workspace", "runner-config.toml"), "utf8");
+    assert.match(config, /model = "gpt-5\.6-luna"/);
+    assert.match(config, /model_reasoning_effort = "low"/);
+    assert.match(config, /web_search = "disabled"/);
     assert.match(config, /default_permissions = "seo-audit"/);
     assert.match(config, /\[permissions\.seo-audit\.network\.domains\]/);
     assert.match(config, /"example\.com" = "allow"/);
@@ -81,6 +84,47 @@ test("persists a queued audit and its completed Codex report", async () => {
     assert.match(config, /exclude = \["CODEX_API_KEY"/);
     await assert.rejects(() => fs.access(path.join(directory, ".home")));
     assert.doesNotMatch(await fs.readFile(path.join(directory, "runner.jsonl"), "utf8"), /sk-test-not-a-real-key/);
+  } finally {
+    await fs.rm(root, { recursive: true, force: true });
+  }
+});
+
+test("enforces the rolling audit budget from persisted job metadata", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "seo-audit-limit-test-"));
+  try {
+    const dataDir = path.join(root, "data");
+    const first = new JobManager({
+      dataDir,
+      env: { CODEX_API_KEY: "sk-test-not-a-real-key" },
+      maxAuditsPer24Hours: 1,
+      maxAuditsPerUser24Hours: 1,
+      maxPendingAudits: 5,
+    });
+    first.runQueue = async () => {};
+    await first.init();
+    await first.create({
+      url: "https://example.com/",
+      type: "technical",
+      requestedBy: "tester@example.com",
+    });
+
+    const restarted = new JobManager({
+      dataDir,
+      env: { CODEX_API_KEY: "sk-test-not-a-real-key" },
+      maxAuditsPer24Hours: 1,
+      maxAuditsPerUser24Hours: 1,
+      maxPendingAudits: 5,
+    });
+    restarted.runQueue = async () => {};
+    await restarted.init();
+    await assert.rejects(
+      () => restarted.create({
+        url: "https://example.org/",
+        type: "technical",
+        requestedBy: "tester@example.com",
+      }),
+      AuditLimitError,
+    );
   } finally {
     await fs.rm(root, { recursive: true, force: true });
   }
