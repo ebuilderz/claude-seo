@@ -1,0 +1,21 @@
+services:
+  seo-audit:
+    build:
+      context: ..
+      dockerfile: internal-app/Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - seo-audit-data:/app/data
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 512
+    shm_size: 1gb
+    restart: unless-stopped
+
+volumes:
+  seo-audit-data:

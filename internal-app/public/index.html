@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="referrer" content="no-referrer" />
+    <title>eBuilderz SEO Audit</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="SEO Audit home">
+        <span class="brand-mark" aria-hidden="true">A</span>
+        <span>
+          <strong id="app-name">eBuilderz SEO Audit</strong>
+          <small>Private team workspace</small>
+        </span>
+      </a>
+      <div class="identity">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="user-email">Checking access...</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Technical SEO quality control</p>
+          <h1>Find the work that will actually move a site forward.</h1>
+          <p id="app-description" class="lede">Evidence-led technical SEO audits for the internal team.</p>
+          <div class="trust-row" aria-label="Service attributes">
+            <span>Private access</span>
+            <span>Codex analysis</span>
+            <span>Persistent reports</span>
+          </div>
+        </div>
+
+        <form id="audit-form" class="audit-card">
+          <div class="card-kicker">
+            <span>New audit</span>
+            <span class="live-label"><i></i> Ready</span>
+          </div>
+
+          <label for="url">Website to audit</label>
+          <div class="url-field">
+            <span aria-hidden="true">https://</span>
+            <input id="url" name="url" type="text" inputmode="url" autocomplete="url" placeholder="example.com" required />
+          </div>
+
+          <label for="type">Audit focus</label>
+          <select id="type" name="type"></select>
+
+          <button id="submit-button" type="submit">
+            <span>Start audit</span>
+            <span aria-hidden="true">&rarr;</span>
+          </button>
+          <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="workspace" aria-label="Audit workspace">
+        <div class="queue-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Team activity</p>
+              <h2>Audit queue</h2>
+            </div>
+            <button id="refresh-button" class="secondary-button" type="button">Refresh</button>
+          </div>
+          <div id="audit-list" class="audit-list"></div>
+        </div>
+
+        <article class="report-panel">
+          <div id="empty-report" class="empty-report">
+            <div class="radar" aria-hidden="true"><span></span></div>
+            <h2>Select an audit to inspect the report</h2>
+            <p>Completed reports stay in this private workspace and can be downloaded as Markdown.</p>
+          </div>
+
+          <div id="report-view" class="report-view" hidden>
+            <div class="section-heading report-heading">
+              <div>
+                <p id="report-type" class="eyebrow"></p>
+                <h2 id="report-title">Audit report</h2>
+                <a id="report-url" target="_blank" rel="noopener noreferrer"></a>
+              </div>
+              <a id="download-link" class="secondary-button" download>Download .md</a>
+            </div>
+            <div id="report-status" class="report-status"></div>
+            <pre id="report-content" tabindex="0"></pre>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <template id="audit-row-template">
+      <button class="audit-row" type="button">
+        <span class="audit-icon" aria-hidden="true"></span>
+        <span class="audit-copy">
+          <strong class="audit-host"></strong>
+          <small class="audit-meta"></small>
+        </span>
+        <span class="audit-state"></span>
+      </button>
+    </template>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
