@@ -35,7 +35,6 @@ COPY pdf ./pdf
 COPY schema ./schema
 COPY scripts ./scripts
 COPY skills ./skills
-COPY translations ./translations
 
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 RUN python3 -m venv /opt/claude-seo/.venv \
