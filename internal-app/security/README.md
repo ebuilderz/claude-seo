@@ -8,7 +8,7 @@ The files in this directory expose only the outer-container primitives needed by
 - `/seoaudit.json` installs as `/etc/docker/seccomp/seoaudit.json`. It is derived from Moby's default seccomp profile at commit `3c28324314729dbade8287e868eef6338c42807a`, keeps `SCMP_ACT_ERRNO` as the default, and additionally allows only `clone`, `clone3`, `mount`, `pivot_root`, `setns`, `umount`, `umount2`, and `unshare` for bubblewrap.
 - `bin/entrypoint` sets the kernel `no_new_privs` bit on the application process, which every audit subprocess inherits.
 
-The production audit profile permits Unix-socket creation inside Codex's isolated bubblewrap namespace so Playwright Chromium can use local IPC. The container mounts no Docker, database, SSH-agent, or host sockets; the domain allowlist and all outer profiles remain enforced.
+The production audit profile exposes bubblewrap's fresh, sandbox-private `/proc` read-only so Playwright Chromium can inspect its own process metadata. The parent Codex process is outside that PID namespace, the command environment excludes the API key, and the domain allowlist plus all outer profiles remain enforced.
 - `install-host-profiles.sh` installs and reloads both profiles on an Ubuntu Docker host.
 
 Install once on the Docker host:

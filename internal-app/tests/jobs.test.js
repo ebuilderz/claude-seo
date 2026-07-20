@@ -41,8 +41,8 @@ test("keeps Linux sandbox setup scoped and disables subagent fan-out", () => {
   const config = codexConfig("gpt-5.6-luna", "low", "example.com", "linux");
   assert.match(config, /\[features\]\nmulti_agent = false/);
   assert.doesNotMatch(config, /use_legacy_landlock/);
-  assert.match(config, /dangerously_allow_all_unix_sockets = true/);
-  assert.match(config, /"\/proc" = "deny"/);
+  assert.doesNotMatch(config, /dangerously_allow_all_unix_sockets/);
+  assert.match(config, /"\/proc" = "read"/);
   assert.doesNotMatch(config, /"\/proc\/\*\/environ"/);
 });
 
@@ -107,11 +107,10 @@ test("persists a queued audit and its completed Codex report", async () => {
     assert.match(config, /model = "gpt-5\.6-luna"/);
     assert.match(config, /model_reasoning_effort = "low"/);
     assert.match(config, /web_search = "disabled"/);
-    assert.match(config, /dangerously_allow_all_unix_sockets = true/);
     assert.match(config, /default_permissions = "seo-audit"/);
     assert.match(config, /\[permissions\.seo-audit\.network\.domains\]/);
     assert.match(config, /"example\.com" = "allow"/);
-    if (process.platform !== "win32") assert.match(config, /"\/proc" = "deny"/);
+    if (process.platform !== "win32") assert.match(config, /"\/proc" = "read"/);
     assert.match(config, /exclude = \["CODEX_API_KEY"/);
     await assert.rejects(() => fs.access(path.join(directory, ".home")));
     assert.doesNotMatch(await fs.readFile(path.join(directory, "runner.jsonl"), "utf8"), /sk-test-not-a-real-key/);

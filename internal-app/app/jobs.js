@@ -167,7 +167,7 @@ export function codexConfig(model, reasoningEffort, hostname, platform = process
       '"/dev/shm" = "write"',
       '"/opt/claude-seo/.venv" = "read"',
       '"/ms-playwright" = "read"',
-      '"/proc" = "deny"',
+      '"/proc" = "read"',
       '"/run/secrets" = "deny"',
     );
   }
@@ -180,7 +180,6 @@ export function codexConfig(model, reasoningEffort, hostname, platform = process
     "[permissions.seo-audit.network]",
     "enabled = true",
     "allow_local_binding = false",
-    "dangerously_allow_all_unix_sockets = true",
     "",
     "[permissions.seo-audit.network.domains]",
     ...allowedNetworkDomains(hostname).map((domain) => `${JSON.stringify(domain)} = "allow"`),

@@ -22,7 +22,7 @@ Do not put secrets in `custom/instructions.md`; this GitHub repository is public
 ## Codex and security boundaries
 
 - A dedicated `CODEX_API_KEY` is passed only to one non-interactive `codex exec` process per audit.
-- Codex runs ephemerally in a per-job least-privilege bubblewrap permission profile. Only that workspace and temporary browser storage are writable. Unix-socket creation is enabled inside the isolated sandbox because Playwright Chromium requires local IPC; no Docker, database, SSH-agent, or host socket is mounted into the container.
+- Codex runs ephemerally in a per-job least-privilege bubblewrap permission profile. Only that workspace and temporary browser storage are writable. Bubblewrap exposes a fresh, sandbox-private `/proc` read-only so Playwright Chromium can inspect its own process metadata; the parent Codex process is outside that PID namespace.
 - The Codex shell policy strips API keys, tokens, secrets, passwords, and application auth values from model-launched subprocesses.
 - Command networking uses Codex's allowlist-first network proxy. It permits the audited hostname, its `www` peer/subdomains, and the Google endpoints used for PageSpeed and Chrome UX evidence. Local and private destinations stay blocked.
 - Process environments and `/run/secrets` are denied to model-launched commands, closing off indirect reads of the parent application's key.
