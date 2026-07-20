@@ -21,13 +21,13 @@ test("container routes bubblewrap through the dedicated host profile", async () 
   assert.match(apparmor, /change_profile -> bwrap/);
   assert.match(apparmor, /profile seoauditcontainer/);
   assert.match(compose, /apparmor=seoauditcontainer/);
-  assert.match(compose, /seccomp=\.\/security\/seccomp\/seoaudit\.json/);
+  assert.match(compose, /seccomp=\.\.\/seoaudit\.json/);
   assert.doesNotMatch(compose, /seccomp=unconfined/);
 });
 
 test("custom seccomp remains default-deny and opens only namespace primitives", async () => {
   const profile = JSON.parse(
-    await readFile(new URL("security/seccomp/seoaudit.json", base), "utf8"),
+    await readFile(new URL("../seoaudit.json", base), "utf8"),
   );
   const expected = [
     "clone",
