@@ -40,7 +40,8 @@ test("passes only the dedicated key and runtime essentials to Codex", () => {
 test("keeps Linux sandbox setup scoped and disables subagent fan-out", () => {
   const config = codexConfig("gpt-5.6-luna", "low", "example.com", "linux");
   assert.match(config, /\[features\]\nmulti_agent = false/);
-  assert.match(config, /use_legacy_landlock = true/);
+  assert.doesNotMatch(config, /use_legacy_landlock/);
+  assert.match(config, /dangerously_allow_all_unix_sockets = true/);
   assert.match(config, /"\/proc" = "deny"/);
   assert.doesNotMatch(config, /"\/proc\/\*\/environ"/);
 });
@@ -106,7 +107,7 @@ test("persists a queued audit and its completed Codex report", async () => {
     assert.match(config, /model = "gpt-5\.6-luna"/);
     assert.match(config, /model_reasoning_effort = "low"/);
     assert.match(config, /web_search = "disabled"/);
-    assert.match(config, /use_legacy_landlock = true/);
+    assert.match(config, /dangerously_allow_all_unix_sockets = true/);
     assert.match(config, /default_permissions = "seo-audit"/);
     assert.match(config, /\[permissions\.seo-audit\.network\.domains\]/);
     assert.match(config, /"example\.com" = "allow"/);

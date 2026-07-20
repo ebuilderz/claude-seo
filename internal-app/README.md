@@ -22,14 +22,14 @@ Do not put secrets in `custom/instructions.md`; this GitHub repository is public
 ## Codex and security boundaries
 
 - A dedicated `CODEX_API_KEY` is passed only to one non-interactive `codex exec` process per audit.
-- Codex runs ephemerally in a per-job least-privilege permission profile. Only that workspace and temporary browser storage are writable. Audits use Codex's supported legacy Landlock backend because the bubblewrap managed-network filter blocks Chromium's required Unix-socket IPC.
+- Codex runs ephemerally in a per-job least-privilege bubblewrap permission profile. Only that workspace and temporary browser storage are writable. Unix-socket creation is enabled inside the isolated sandbox because Playwright Chromium requires local IPC; no Docker, database, SSH-agent, or host socket is mounted into the container.
 - The Codex shell policy strips API keys, tokens, secrets, passwords, and application auth values from model-launched subprocesses.
 - Command networking uses Codex's allowlist-first network proxy. It permits the audited hostname, its `www` peer/subdomains, and the Google endpoints used for PageSpeed and Chrome UX evidence. Local and private destinations stay blocked.
 - Process environments and `/run/secrets` are denied to model-launched commands, closing off indirect reads of the parent application's key.
 - Submitted URLs are restricted to public IPs and ports 80/443 before a job is queued.
 - The container runs as an unprivileged user. It receives no database, Docker socket, SSH, or server-management credentials.
 - Bubblewrap receives only the namespace syscalls it needs through the checked-in host AppArmor and seccomp profiles; the container remains non-root, capability-free, and non-privileged.
-- The hardened outer container remains enforced when Landlock is selected: non-root execution, zero capabilities, `no_new_privs`, AppArmor, and a default-deny seccomp profile.
+- The hardened outer container remains enforced: non-root execution, zero capabilities, `no_new_privs`, AppArmor, and a default-deny seccomp profile.
 - Audited website content is explicitly treated as untrusted data rather than instructions.
 - Production refuses to start with authentication disabled or without a Codex key.
 - All application and report routes require authentication; `/healthz` exposes only `{ "ok": true }`.
