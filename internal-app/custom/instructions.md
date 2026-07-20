@@ -7,3 +7,4 @@
 - Separate quick wins from larger engineering work.
 - Do not invent measurements, traffic impact, rankings, or competitor data. Mark unavailable evidence clearly.
 - Use concise, neutral language that can be copied into an internal task tracker.
+- Do not include promotional footers, community links, author advertising, or calls to join third-party groups.

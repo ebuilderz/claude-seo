@@ -4,7 +4,13 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { AuditLimitError, childEnvironment, codexConfig, JobManager } from "../app/jobs.js";
+import {
+  AuditLimitError,
+  childEnvironment,
+  codexConfig,
+  JobManager,
+  sanitizeReport,
+} from "../app/jobs.js";
 
 const fixture = fileURLToPath(new URL("./fixtures/fake-codex.js", import.meta.url));
 
@@ -34,8 +40,24 @@ test("passes only the dedicated key and runtime essentials to Codex", () => {
 test("keeps Linux sandbox setup scoped and disables subagent fan-out", () => {
   const config = codexConfig("gpt-5.6-luna", "low", "example.com", "linux");
   assert.match(config, /\[features\]\nmulti_agent = false/);
+  assert.match(config, /use_legacy_landlock = true/);
   assert.match(config, /"\/proc" = "deny"/);
   assert.doesNotMatch(config, /"\/proc\/\*\/environ"/);
+});
+
+test("removes the upstream promotional footer from internal reports", () => {
+  const report = [
+    "# Technical audit",
+    "",
+    "Evidence-led findings.",
+    "",
+    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    "Built by agricidaniel — Join the AI Marketing Hub community",
+    "Free → https://example.invalid/community",
+    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+  ].join("\n");
+  assert.equal(sanitizeReport(report), "# Technical audit\n\nEvidence-led findings.\n");
+  assert.equal(sanitizeReport("# Clean report\n"), "# Clean report\n");
 });
 
 test("persists a queued audit and its completed Codex report", async () => {
@@ -84,6 +106,7 @@ test("persists a queued audit and its completed Codex report", async () => {
     assert.match(config, /model = "gpt-5\.6-luna"/);
     assert.match(config, /model_reasoning_effort = "low"/);
     assert.match(config, /web_search = "disabled"/);
+    assert.match(config, /use_legacy_landlock = true/);
     assert.match(config, /default_permissions = "seo-audit"/);
     assert.match(config, /\[permissions\.seo-audit\.network\.domains\]/);
     assert.match(config, /"example\.com" = "allow"/);
