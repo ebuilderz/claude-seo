@@ -22,13 +22,14 @@ Do not put secrets in `custom/instructions.md`; this GitHub repository is public
 ## Codex and security boundaries
 
 - A dedicated `CODEX_API_KEY` is passed only to one non-interactive `codex exec` process per audit.
-- Codex runs ephemerally in a per-job least-privilege permission profile. Only that workspace and temporary browser storage are writable.
+- Codex runs ephemerally in a per-job least-privilege permission profile. Only that workspace and temporary browser storage are writable. Audits use Codex's supported legacy Landlock backend because the bubblewrap managed-network filter blocks Chromium's required Unix-socket IPC.
 - The Codex shell policy strips API keys, tokens, secrets, passwords, and application auth values from model-launched subprocesses.
 - Command networking uses Codex's allowlist-first network proxy. It permits the audited hostname, its `www` peer/subdomains, and the Google endpoints used for PageSpeed and Chrome UX evidence. Local and private destinations stay blocked.
 - Process environments and `/run/secrets` are denied to model-launched commands, closing off indirect reads of the parent application's key.
 - Submitted URLs are restricted to public IPs and ports 80/443 before a job is queued.
 - The container runs as an unprivileged user. It receives no database, Docker socket, SSH, or server-management credentials.
 - Bubblewrap receives only the namespace syscalls it needs through the checked-in host AppArmor and seccomp profiles; the container remains non-root, capability-free, and non-privileged.
+- The hardened outer container remains enforced when Landlock is selected: non-root execution, zero capabilities, `no_new_privs`, AppArmor, and a default-deny seccomp profile.
 - Audited website content is explicitly treated as untrusted data rather than instructions.
 - Production refuses to start with authentication disabled or without a Codex key.
 - All application and report routes require authentication; `/healthz` exposes only `{ "ok": true }`.
@@ -104,6 +105,8 @@ The image installs Chromium and the upstream Python dependencies, so its first b
 ## Personalizing reports
 
 Edit `custom/instructions.md` for report structure, terminology, scoring, ownership, and quality rules. It is appended to each audit and is not touched by normal upstream merges.
+
+The runner also removes the upstream project's promotional community footer before storing a report, so internal reports stay neutral even if a future upstream skill still requests that footer.
 
 If a skill-level fork is unavoidable, put only the replacement file under `custom/skill-overrides/` with the same repository-relative path. Overrides are copied over the upstream files inside each disposable job workspace. Keep overrides small and review them whenever upstream changes the same skill.
 

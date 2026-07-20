@@ -106,6 +106,21 @@ export function childEnvironment(env, jobHome) {
   return Object.fromEntries(Object.entries(result).filter(([, value]) => value));
 }
 
+export function sanitizeReport(value) {
+  const lines = String(value).split(/\r?\n/);
+  const marker = lines.findIndex((line) =>
+    /Built by\s+agricidaniel|Join the AI Marketing Hub community/i.test(line));
+  if (marker < 0) return String(value);
+
+  let start = marker;
+  while (start > 0) {
+    const previous = lines[start - 1].trim();
+    if (previous === "" || /^[━═─—-]{3,}$/.test(previous)) start -= 1;
+    else break;
+  }
+  return `${lines.slice(0, start).join("\n").trimEnd()}\n`;
+}
+
 function allowedNetworkDomains(hostname) {
   const peer = hostname.startsWith("www.") ? hostname.slice(4) : `www.${hostname}`;
   return [...new Set([
@@ -130,6 +145,7 @@ export function codexConfig(model, reasoningEffort, hostname, platform = process
     "",
     "[features]",
     "multi_agent = false",
+    "use_legacy_landlock = true",
     "",
     "[shell_environment_policy]",
     'inherit = "core"',
@@ -443,6 +459,8 @@ export class JobManager {
         const fallback = extractLastAgentMessage(output) || "The audit completed without a text report.";
         await fs.writeFile(reportPath, fallback, { mode: 0o600 });
       }
+      const report = sanitizeReport(await fs.readFile(reportPath, "utf8"));
+      await fs.writeFile(reportPath, report, { mode: 0o600 });
       job.status = "completed";
       job.reportAvailable = true;
     } catch (error) {
