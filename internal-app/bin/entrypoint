@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+
+# Coolify's Docker-run-to-Compose parser truncates hyphenated security-option
+# values. Set no_new_privs on the application process itself so every audit
+# subprocess inherits it even when Coolify cannot express the Docker flag.
+exec /usr/bin/setpriv --no-new-privs -- "$@"

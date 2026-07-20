@@ -5,18 +5,22 @@ import test from "node:test";
 const base = new URL("../", import.meta.url);
 
 test("container routes bubblewrap through the dedicated host profile", async () => {
-  const [dockerfile, wrapper, compose, apparmor] = await Promise.all([
+  const [dockerfile, wrapper, entrypoint, compose, apparmor] = await Promise.all([
     readFile(new URL("Dockerfile", base), "utf8"),
     readFile(new URL("bin/bwrap", base), "utf8"),
+    readFile(new URL("bin/entrypoint", base), "utf8"),
     readFile(new URL("compose.yaml", base), "utf8"),
     readFile(new URL("security/apparmor/seo-audit-container", base), "utf8"),
   ]);
 
   assert.match(dockerfile, /apparmor-utils/);
   assert.match(dockerfile, /COPY internal-app\/bin\/bwrap \/usr\/local\/bin\/bwrap/);
+  assert.match(dockerfile, /ENTRYPOINT \["\/usr\/local\/bin\/seo-audit-entrypoint"\]/);
   assert.match(wrapper, /aa-exec -p bwrap -- \/usr\/bin\/bwrap/);
+  assert.match(entrypoint, /setpriv --no-new-privs -- "\$@"/);
   assert.match(apparmor, /change_profile -> bwrap/);
-  assert.match(compose, /apparmor=seo-audit-container/);
+  assert.match(apparmor, /profile seoauditcontainer/);
+  assert.match(compose, /apparmor=seoauditcontainer/);
   assert.match(compose, /seccomp=\.\/security\/seccomp\/seo-audit\.json/);
   assert.doesNotMatch(compose, /seccomp=unconfined/);
 });

@@ -5,7 +5,7 @@
 # to Ubuntu's bwrap-userns-restrict profile. Mount-related syscalls are limited
 # separately by the dedicated seccomp profile; the container still runs as a
 # non-root user with all Linux capabilities dropped.
-profile seo-audit-container flags=(attach_disconnected,mediate_deleted) {
+profile seoauditcontainer flags=(attach_disconnected,mediate_deleted) {
   network,
   deny network alg,
   capability,
@@ -15,7 +15,7 @@ profile seo-audit-container flags=(attach_disconnected,mediate_deleted) {
   pivot_root,
   userns,
   signal,
-  ptrace (trace,tracedby,read,readby) peer=seo-audit-container,
+  ptrace (trace,tracedby,read,readby) peer=seoauditcontainer,
 
   change_profile -> bwrap,
 

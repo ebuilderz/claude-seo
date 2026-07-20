@@ -22,11 +22,11 @@ if [ ! -f /etc/apparmor.d/bwrap-userns-restrict ]; then
   install -m 0644 "$source_profile" /etc/apparmor.d/bwrap-userns-restrict
 fi
 
-install -m 0644 "$script_dir/apparmor/seo-audit-container" /etc/apparmor.d/seo-audit-container
+install -m 0644 "$script_dir/apparmor/seo-audit-container" /etc/apparmor.d/seoauditcontainer
 install -d -m 0755 /etc/docker/seccomp
-install -m 0644 "$script_dir/seccomp/seo-audit.json" /etc/docker/seccomp/seo-audit.json
+install -m 0644 "$script_dir/seccomp/seo-audit.json" /etc/docker/seccomp/seoaudit.json
 
 apparmor_parser -r /etc/apparmor.d/bwrap-userns-restrict
-apparmor_parser -r /etc/apparmor.d/seo-audit-container
+apparmor_parser -r /etc/apparmor.d/seoauditcontainer
 
-echo "Installed seo-audit-container AppArmor and seo-audit.json seccomp profiles."
+echo "Installed seoauditcontainer AppArmor and seoaudit.json seccomp profiles."

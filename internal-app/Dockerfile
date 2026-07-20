@@ -18,6 +18,7 @@ RUN apt-get update \
       python3 \
       python3-pip \
       python3-venv \
+      util-linux \
     && rm -rf /var/lib/apt/lists/*
 
 RUN npm install --global "@openai/codex@${CODEX_VERSION}"
@@ -26,7 +27,8 @@ RUN npm install --global "@openai/codex@${CODEX_VERSION}"
 # profile cannot transition automatically, so route only bubblewrap through the
 # host's dedicated bwrap profile. The container itself remains unprivileged.
 COPY internal-app/bin/bwrap /usr/local/bin/bwrap
-RUN chmod 0755 /usr/local/bin/bwrap
+COPY internal-app/bin/entrypoint /usr/local/bin/seo-audit-entrypoint
+RUN chmod 0755 /usr/local/bin/bwrap /usr/local/bin/seo-audit-entrypoint
 
 WORKDIR /app
 COPY internal-app/package.json internal-app/package-lock.json ./
@@ -72,4 +74,5 @@ VOLUME ["/app/data"]
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD curl --fail --silent http://127.0.0.1:3000/healthz || exit 1
 
+ENTRYPOINT ["/usr/local/bin/seo-audit-entrypoint"]
 CMD ["node", "app/server.js"]
