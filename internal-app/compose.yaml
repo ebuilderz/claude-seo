@@ -14,7 +14,7 @@ services:
     security_opt:
       - no-new-privileges:true
       - apparmor=seoauditcontainer
-      - seccomp=./security/seccomp/seo-audit.json
+      - seccomp=./security/seccomp/seoaudit.json
     pids_limit: 512
     shm_size: 1gb
     restart: unless-stopped
