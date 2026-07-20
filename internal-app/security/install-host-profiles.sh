@@ -24,7 +24,7 @@ fi
 
 install -m 0644 "$script_dir/apparmor/seo-audit-container" /etc/apparmor.d/seoauditcontainer
 install -d -m 0755 /etc/docker/seccomp
-install -m 0644 "$script_dir/seccomp/seoaudit.json" /etc/docker/seccomp/seoaudit.json
+install -m 0644 "$script_dir/../../seoaudit.json" /etc/docker/seccomp/seoaudit.json
 
 apparmor_parser -r /etc/apparmor.d/bwrap-userns-restrict
 apparmor_parser -r /etc/apparmor.d/seoauditcontainer

@@ -4,11 +4,13 @@ on:
   pull_request:
     paths:
       - "internal-app/**"
+      - "seoaudit.json"
       - ".github/workflows/internal-app.yml"
   push:
     branches: [main]
     paths:
       - "internal-app/**"
+      - "seoaudit.json"
       - ".github/workflows/internal-app.yml"
 
 permissions:
