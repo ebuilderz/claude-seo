@@ -94,7 +94,7 @@ Add the values from `coolify.env.example` as runtime variables. Mark `CODEX_API_
 Before the first deployment on an Ubuntu host, install the profiles in [`security/README.md`](security/README.md). In Coolify, set these custom Docker run options in addition to the existing CPU and memory limits:
 
 ```text
---cap-drop ALL --security-opt no-new-privileges:true --security-opt apparmor=seo-audit-container --security-opt seccomp=/etc/docker/seccomp/seo-audit.json --pids-limit 512 --shm-size 1g
+--cap-drop ALL --security-opt apparmor=seoauditcontainer --security-opt seccomp=/etc/docker/seccomp/seoaudit.json --ulimit nproc=512:512 --shm-size 1g
 ```
 
 The deployment must fail closed if either host profile is missing. Do not use privileged mode or an unconfined seccomp profile.
