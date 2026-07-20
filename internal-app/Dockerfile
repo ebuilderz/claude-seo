@@ -5,6 +5,7 @@ ARG CODEX_VERSION=0.144.5
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+      apparmor-utils \
       bubblewrap \
       ca-certificates \
       curl \
@@ -20,6 +21,12 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 RUN npm install --global "@openai/codex@${CODEX_VERSION}"
+
+# Codex uses bubblewrap for its per-command sandbox. Docker's outer AppArmor
+# profile cannot transition automatically, so route only bubblewrap through the
+# host's dedicated bwrap profile. The container itself remains unprivileged.
+COPY internal-app/bin/bwrap /usr/local/bin/bwrap
+RUN chmod 0755 /usr/local/bin/bwrap
 
 WORKDIR /app
 COPY internal-app/package.json internal-app/package-lock.json ./

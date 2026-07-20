@@ -28,6 +28,7 @@ Do not put secrets in `custom/instructions.md`; this GitHub repository is public
 - Process environments and `/run/secrets` are denied to model-launched commands, closing off indirect reads of the parent application's key.
 - Submitted URLs are restricted to public IPs and ports 80/443 before a job is queued.
 - The container runs as an unprivileged user. It receives no database, Docker socket, SSH, or server-management credentials.
+- Bubblewrap receives only the namespace syscalls it needs through the checked-in host AppArmor and seccomp profiles; the container remains non-root, capability-free, and non-privileged.
 - Audited website content is explicitly treated as untrusted data rather than instructions.
 - Production refuses to start with authentication disabled or without a Codex key.
 - All application and report routes require authentication; `/healthz` exposes only `{ "ok": true }`.
@@ -89,6 +90,14 @@ Create an application from `ebuilderz/claude-seo` with these settings:
 - Persistent volume destination: `/app/data`
 
 Add the values from `coolify.env.example` as runtime variables. Mark `CODEX_API_KEY`, `CF_ACCESS_AUD`, and any Basic password as secrets. Enable automatic deployment from `main` only after the initial pull request has been reviewed.
+
+Before the first deployment on an Ubuntu host, install the profiles in [`security/README.md`](security/README.md). In Coolify, set these custom Docker run options in addition to the existing CPU and memory limits:
+
+```text
+--cap-drop ALL --security-opt no-new-privileges:true --security-opt apparmor=seo-audit-container --security-opt seccomp=/etc/docker/seccomp/seo-audit.json --pids-limit 512 --shm-size 1g
+```
+
+The deployment must fail closed if either host profile is missing. Do not use privileged mode or an unconfined seccomp profile.
 
 The image installs Chromium and the upstream Python dependencies, so its first build is larger and slower than a normal Node service.
 
