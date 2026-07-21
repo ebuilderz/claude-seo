@@ -31,9 +31,12 @@ COPY scripts ./scripts
 COPY skills ./skills
 
 ENV CLAUDE_SEO_DATA_DIR=/opt/claude-seo-runtime
+COPY hosted-app/runtime-compat.txt /opt/claude-seo-hosting-requirements.txt
+ENV PIP_REQUIREMENT=/opt/claude-seo-hosting-requirements.txt
 RUN ./bin/claude-seo setup \
     && /opt/claude-seo-runtime/.venv/bin/python -m playwright install --with-deps chromium \
     && chmod -R a-w /opt/claude-seo /opt/claude-seo-runtime
+ENV PIP_REQUIREMENT=
 
 WORKDIR /app
 COPY hosted-app/package.json hosted-app/package-lock.json ./

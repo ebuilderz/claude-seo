@@ -1,0 +1,3 @@
+# v2.2.4 pins lxml>=6.1.1 while trafilatura -> jusText still imports
+# lxml.html.clean. lxml split that module into this separately maintained package.
+lxml-html-clean==0.4.5
