@@ -51,6 +51,19 @@ test("enables bounded multi-agent execution in the hardened audit profile", () =
   assert.match(config, /exclude = \["CODEX_API_KEY"/);
 });
 
+test("seccomp permits the inner sandbox namespaces while denying by default", async () => {
+  const profile = JSON.parse(await fs.readFile(new URL("../seoaudit.json", import.meta.url), "utf8"));
+  assert.equal(profile.defaultAction, "SCMP_ACT_ERRNO");
+  const namespaceRule = profile.syscalls.find((rule) =>
+    rule.action === "SCMP_ACT_ALLOW" && ["clone", "mount", "setns", "unshare"].every((name) => rule.names.includes(name))
+  );
+  assert.ok(namespaceRule, "bubblewrap namespace syscalls must be explicitly allowed");
+  const unconditionalBpf = profile.syscalls.find((rule) =>
+    rule.action === "SCMP_ACT_ALLOW" && rule.names.includes("bpf") && !rule.includes?.caps
+  );
+  assert.equal(unconditionalBpf, undefined);
+});
+
 test("publishes a full audit only after all upstream artifacts pass", async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "upstream-host-test-"));
   try {

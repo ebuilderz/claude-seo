@@ -24,3 +24,12 @@ one automatic completion pass.
 - Production refuses to start without authentication and a Codex API key.
 - Set a hard OpenAI project spending limit; application quotas are a secondary
   guard, not a financial guarantee.
+
+Coolify must use the hosting adapter's namespace-aware seccomp profile so
+Codex can run its inner bubblewrap sandbox without granting container
+capabilities. Keep the server's `seoauditcontainer` and `bwrap` AppArmor
+profiles loaded, then set these custom Docker run options:
+
+```text
+--cap-drop=ALL --shm-size=1g --security-opt=apparmor=seoauditcontainer --security-opt=seccomp=./hosted-app/seoaudit.json --ulimit=nproc=512:512
+```
