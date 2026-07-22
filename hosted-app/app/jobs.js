@@ -151,7 +151,11 @@ export function codexConfig(model, reasoningEffort, hostname, platform = process
     "[permissions.seo-audit.filesystem]",
     '":minimal" = "read"',
     '":tmpdir" = "write"',
-    '"~/.codex" = "deny"',
+    // CODEX_HOME is job-scoped and deleted after the run. Codex stages its
+    // sandbox executable under ~/.codex/tmp, so this path must remain readable
+    // and executable inside the sandbox. Secrets stay in the parent process
+    // environment and are excluded from model-launched commands below.
+    '"~/.codex" = "read"',
     "glob_scan_max_depth = 6",
   ];
   if (platform !== "win32") {

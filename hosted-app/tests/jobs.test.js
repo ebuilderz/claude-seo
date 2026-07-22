@@ -48,6 +48,8 @@ test("enables bounded multi-agent execution in the hardened audit profile", () =
   assert.match(config, /default_permissions = "seo-audit"/);
   assert.match(config, /"example\.com" = "allow"/);
   assert.match(config, /"\/proc" = "read"/);
+  assert.match(config, /"~\/\.codex" = "read"/);
+  assert.doesNotMatch(config, /"~\/\.codex" = "deny"/);
   assert.match(config, /exclude = \["CODEX_API_KEY"/);
 });
 
