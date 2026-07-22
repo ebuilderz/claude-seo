@@ -31,5 +31,5 @@ capabilities. Keep the server's `seoauditcontainer` AppArmor profile loaded,
 then set these custom Docker run options:
 
 ```text
---cap-drop=ALL --shm-size=1g --security-opt=apparmor=seoauditcontainer --security-opt=seccomp=./hosted-app/seoaudit.json --ulimit=nproc=512:512
+--cap-drop=ALL --shm-size=1g --security-opt=apparmor=seoauditcontainer --security-opt=seccomp=./seoaudit.json --ulimit=nproc=512:512
 ```
