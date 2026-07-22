@@ -27,8 +27,8 @@ one automatic completion pass.
 
 Coolify must use the hosting adapter's namespace-aware seccomp profile so
 Codex can run its inner bubblewrap sandbox without granting container
-capabilities. Keep the server's `seoauditcontainer` and `bwrap` AppArmor
-profiles loaded, then set these custom Docker run options:
+capabilities. Keep the server's `seoauditcontainer` AppArmor profile loaded,
+then set these custom Docker run options:
 
 ```text
 --cap-drop=ALL --shm-size=1g --security-opt=apparmor=seoauditcontainer --security-opt=seccomp=./hosted-app/seoaudit.json --ulimit=nproc=512:512

@@ -1,4 +1,7 @@
 #!/bin/sh
 set -eu
 
-exec /usr/bin/aa-exec -p bwrap -- /usr/bin/bwrap "$@"
+# The outer seoauditcontainer AppArmor profile explicitly permits user
+# namespaces. The container entrypoint sets no_new_privs, which intentionally
+# prevents later AppArmor profile changes, so launch bubblewrap directly.
+exec /usr/bin/bwrap "$@"
