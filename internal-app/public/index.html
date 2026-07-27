@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <meta name="referrer" content="no-referrer" />
+    <title>eBuilderz SEO Audit</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="SEO Audit home">
+        <span class="brand-mark" aria-hidden="true">A</span>
+        <span>
+          <strong id="app-name">eBuilderz SEO Audit</strong>
+          <small>Private team workspace</small>
+        </span>
+      </a>
+      <div class="identity">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="user-email">Checking access...</span>
+      </div>
+    </header>
+
+    <main>
+      <nav class="view-tabs" aria-label="Workspace sections">
+        <button class="view-tab active" type="button" data-view="tools">Tool runner</button>
+        <button class="view-tab" type="button" data-view="commands">SEO commands</button>
+        <button class="view-tab" type="button" data-view="audits">Audit workspace</button>
+      </nav>
+
+      <div id="audits-view" class="app-view" hidden>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Technical SEO quality control</p>
+          <h1>Find the work that will actually move a site forward.</h1>
+          <p id="app-description" class="lede">Evidence-led technical SEO audits for the internal team.</p>
+          <div class="trust-row" aria-label="Service attributes">
+            <span>Private access</span>
+            <span>Codex analysis</span>
+            <span>Persistent reports</span>
+          </div>
+        </div>
+
+        <form id="audit-form" class="audit-card">
+          <div class="card-kicker">
+            <span>New audit</span>
+            <span class="live-label"><i></i> Ready</span>
+          </div>
+
+          <label for="url">Website to audit</label>
+          <div class="url-field">
+            <span aria-hidden="true">https://</span>
+            <input id="url" name="url" type="text" inputmode="url" autocomplete="url" placeholder="example.com" required />
+          </div>
+
+          <label for="type">Audit focus</label>
+          <select id="type" name="type"></select>
+
+          <button id="submit-button" type="submit">
+            <span>Start audit</span>
+            <span aria-hidden="true">&rarr;</span>
+          </button>
+          <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="workspace" aria-label="Audit workspace">
+        <div class="queue-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Team activity</p>
+              <h2>Audit queue</h2>
+            </div>
+            <button id="refresh-button" class="secondary-button" type="button">Refresh</button>
+          </div>
+          <div id="audit-list" class="audit-list"></div>
+        </div>
+
+        <article class="report-panel">
+          <div id="empty-report" class="empty-report">
+            <div class="radar" aria-hidden="true"><span></span></div>
+            <h2>Select an audit to inspect the report</h2>
+            <p>Completed reports stay in this private workspace and can be downloaded as Markdown.</p>
+          </div>
+
+          <div id="report-view" class="report-view" hidden>
+            <div class="section-heading report-heading">
+              <div>
+                <p id="report-type" class="eyebrow"></p>
+                <h2 id="report-title">Audit report</h2>
+                <a id="report-url" target="_blank" rel="noopener noreferrer"></a>
+              </div>
+              <a id="download-link" class="secondary-button" download>Download .md</a>
+            </div>
+            <div id="report-status" class="report-status"></div>
+            <pre id="report-content" tabindex="0"></pre>
+          </div>
+        </article>
+      </section>
+      </div>
+
+      <div id="tools-view" class="app-view">
+        <section class="view-intro">
+          <p class="eyebrow">Direct script access</p>
+          <h1>Run SEO tools from the browser.</h1>
+          <p class="lede">Use the repository’s deterministic scripts without starting a full AI audit. Runs are authenticated, validated, rate-limited, and restricted to the tools listed below.</p>
+        </section>
+
+        <section class="tool-layout">
+          <div>
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Available utilities</p>
+                <h2>Tool runner</h2>
+              </div>
+            </div>
+            <div id="tool-grid" class="tool-grid"></div>
+          </div>
+
+          <aside class="tool-console">
+            <div id="tool-empty" class="tool-empty">
+              <span class="console-icon" aria-hidden="true">&gt;_</span>
+              <h2>Select a tool</h2>
+              <p>Choose a utility to configure its input and run it against a public website.</p>
+            </div>
+            <div id="tool-form-view" hidden>
+              <p id="tool-kicker" class="eyebrow">Tool runner</p>
+              <h2 id="tool-title"></h2>
+              <p id="tool-description" class="tool-description"></p>
+              <form id="tool-form">
+                <label id="tool-input-label" for="tool-input">Website URL</label>
+                <input id="tool-input" autocomplete="off" required />
+                <div id="tool-options"></div>
+                <button id="tool-submit" type="submit">Run tool <span aria-hidden="true">&rarr;</span></button>
+                <p id="tool-message" class="form-message" role="status" aria-live="polite"></p>
+              </form>
+              <div class="output-heading">
+                <strong>Output</strong>
+                <button id="copy-output" class="secondary-button" type="button">Copy</button>
+              </div>
+              <div id="tool-output" tabindex="0">Output will appear here.</div>
+            </div>
+          </aside>
+        </section>
+      </div>
+
+      <div id="commands-view" class="app-view" hidden>
+        <section class="view-intro compact">
+          <p class="eyebrow">Skills reference</p>
+          <h1>SEO workflows available in this repository.</h1>
+          <p class="lede">These commands map to the installed skills used by Codex and other compatible agent harnesses.</p>
+        </section>
+        <section>
+          <div id="command-grid" class="command-grid"></div>
+        </section>
+      </div>
+    </main>
+
+    <template id="audit-row-template">
+      <button class="audit-row" type="button">
+        <span class="audit-icon" aria-hidden="true"></span>
+        <span class="audit-copy">
+          <strong class="audit-host"></strong>
+          <small class="audit-meta"></small>
+        </span>
+        <span class="audit-state"></span>
+      </button>
+    </template>
+
+    <template id="tool-card-template">
+      <button class="tool-card" type="button">
+        <span class="tool-card-top">
+          <strong class="tool-name"></strong>
+          <span class="tool-badge"></span>
+        </span>
+        <span class="tool-summary"></span>
+      </button>
+    </template>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

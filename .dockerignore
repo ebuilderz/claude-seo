@@ -1,0 +1,12 @@
+.git
+.gitignore
+.env
+**/.env
+**/node_modules
+internal-app/data
+internal-app/.npm
+screenshots
+claude-seo-slides
+docs
+tests
+*.log

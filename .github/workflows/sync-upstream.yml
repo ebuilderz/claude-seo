@@ -1,0 +1,59 @@
+name: Sync upstream Claude SEO
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 5 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Merge the latest upstream main into a review branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/AgricIDaniel/claude-seo.git
+          git fetch upstream main --tags
+
+          if git merge-base --is-ancestor upstream/main origin/main; then
+            echo "The fork already contains the latest upstream commit."
+            exit 0
+          fi
+
+          branch="automation/upstream-sync"
+          git fetch origin "+refs/heads/$branch:refs/remotes/origin/$branch" || true
+          git switch --force-create "$branch" origin/main
+          if ! git merge --no-edit upstream/main; then
+            git merge --abort || true
+            echo "Upstream conflicts require a manual merge; main was not changed."
+            exit 1
+          fi
+
+          git push --force-with-lease --set-upstream origin "$branch"
+          existing="$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number // empty')"
+          if [ -z "$existing" ]; then
+            gh pr create \
+              --base main \
+              --head "$branch" \
+              --draft \
+              --label "upstream-update" \
+              --title "chore: sync latest AgricIDaniel/claude-seo" \
+              --body "Automated upstream merge. Review the changelog and checks before merging; the private app lives under internal-app/ and remains separate from upstream-owned files."
+          else
+            gh pr edit "$existing" --add-label "upstream-update" || true
+          fi

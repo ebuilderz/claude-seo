@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+
+exec /usr/bin/aa-exec -p bwrap -- /usr/bin/bwrap "$@"

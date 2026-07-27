@@ -73,6 +73,7 @@ SITEMAP-REPORT*.md
 VALIDATION-REPORT.md
 
 # Generated artifacts from audits
+internal-app/data/
 charts/
 *.pdf
 report.html
