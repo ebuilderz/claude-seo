@@ -149,8 +149,13 @@ export async function createApp(options = {}) {
 
   app.use(express.static(publicDir, {
     extensions: ["html"],
-    maxAge: process.env.NODE_ENV === "production" ? "1h" : 0,
-    etag: process.env.NODE_ENV === "production",
+    maxAge: 0,
+    etag: true,
+    setHeaders(res, filePath) {
+      if (/\.(?:html|css|js)$/i.test(filePath)) {
+        res.setHeader("Cache-Control", "no-cache, must-revalidate");
+      }
+    },
   }));
   app.get("/*splat", (_req, res) => res.sendFile(path.join(publicDir, "index.html")));
 
