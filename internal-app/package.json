@@ -11,7 +11,7 @@
     "start": "node app/server.js",
     "dev": "node --watch app/server.js",
     "test": "node --test",
-    "check": "node --check app/server.js && node --check app/jobs.js && node --check app/auth.js && node --check app/url-safety.js"
+    "check": "node --check app/server.js && node --check app/jobs.js && node --check app/tool-runner.js && node --check app/auth.js && node --check app/url-safety.js && node --check public/app.js"
   },
   "dependencies": {
     "express": "5.1.0",

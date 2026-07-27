@@ -264,7 +264,7 @@ export class JobManager {
       options.maxReportWords ?? this.env.AUDIT_MAX_REPORT_WORDS,
       2_500,
     );
-    this.requireApiKey = options.requireApiKey ?? true;
+    this.requireApiKey = options.requireApiKey ?? (this.env.NODE_ENV === "production");
     this.jobs = new Map();
     this.queue = [];
     this.running = false;
@@ -317,6 +317,10 @@ export class JobManager {
       maxReportWords: this.maxReportWords,
       webSearch: "disabled",
     };
+  }
+
+  auditAvailable() {
+    return Boolean(this.env.CODEX_API_KEY);
   }
 
   assertWithinLimits(requestedBy, now = Date.now()) {

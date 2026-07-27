@@ -4,6 +4,7 @@ import express from "express";
 import helmet from "helmet";
 import { createAuth } from "./auth.js";
 import { AUDIT_TYPES, AuditLimitError, JobManager } from "./jobs.js";
+import { ToolRunner } from "./tool-runner.js";
 import { validateAuditUrl } from "./url-safety.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -28,7 +29,9 @@ export async function createApp(options = {}) {
   const app = express();
   const auth = options.auth || createAuth();
   const jobs = options.jobs || new JobManager();
+  const tools = options.tools || new ToolRunner();
   await jobs.init();
+  await tools.init();
 
   app.disable("x-powered-by");
   app.set("trust proxy", 1);
@@ -67,6 +70,8 @@ export async function createApp(options = {}) {
       appDescription: process.env.APP_DESCRIPTION || "Evidence-led technical SEO audits for the internal team.",
       user: req.user.email,
       auditTypes: AUDIT_TYPES,
+      auditAvailable: jobs.auditAvailable?.() ?? true,
+      tools: tools.list(),
       costGuards: jobs.limits(),
     });
   });
@@ -96,6 +101,11 @@ export async function createApp(options = {}) {
 
   app.post("/api/audits", createRateLimiter(), async (req, res, next) => {
     try {
+      if ((jobs.auditAvailable?.() ?? true) === false) {
+        return res.status(503).json({
+          error: "AI audits are disabled locally until CODEX_API_KEY is configured. The Tool Runner remains available.",
+        });
+      }
       const type = String(req.body?.type || "audit");
       if (!AUDIT_TYPES[type]) return res.status(400).json({ error: "Choose a supported audit type." });
       const url = await validateAuditUrl(req.body?.url);
@@ -112,9 +122,36 @@ export async function createApp(options = {}) {
     }
   });
 
+  app.post("/api/tools/:id/run", createRateLimiter({ limit: 20 }), async (req, res, next) => {
+    try {
+      const definition = tools.list().find((tool) => tool.id === req.params.id);
+      if (!definition) return res.status(404).json({ error: "Tool not found." });
+      const payload = { options: req.body?.options || {} };
+      if (definition.input === "url") payload.url = await validateAuditUrl(req.body?.url);
+      if (definition.input === "domain") {
+        const raw = String(req.body?.domain || "").trim();
+        const normalized = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+        payload.domain = new URL(await validateAuditUrl(normalized)).hostname;
+      }
+      if (definition.input === "query") payload.query = req.body?.query;
+      const result = await tools.run(req.params.id, payload);
+      return res.json(result);
+    } catch (error) {
+      if (error instanceof Error && /URL|HTTP|port|network|address|hostname|resolved|Enter|Choose|requires|running|limit/i.test(error.message)) {
+        return res.status(400).json({ error: error.message });
+      }
+      if (error instanceof Error) return res.status(422).json({ error: error.message.slice(0, 500) });
+      return next(error);
+    }
+  });
+
   app.use("/api", (_req, res) => res.status(404).json({ error: "API route not found." }));
 
-  app.use(express.static(publicDir, { extensions: ["html"], maxAge: "1h" }));
+  app.use(express.static(publicDir, {
+    extensions: ["html"],
+    maxAge: process.env.NODE_ENV === "production" ? "1h" : 0,
+    etag: process.env.NODE_ENV === "production",
+  }));
   app.get("/*splat", (_req, res) => res.sendFile(path.join(publicDir, "index.html")));
 
   app.use((error, _req, res, _next) => {
