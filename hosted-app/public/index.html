@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Claude SEO — Upstream</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <strong id="app-name">Claude SEO — Upstream</strong>
+      <span id="version"></span>
+    </div>
+    <span id="user"></span>
+  </header>
+  <main>
+    <section class="intro">
+      <div>
+        <p class="eyebrow">ORIGINAL UPSTREAM WORKFLOW</p>
+        <h1>Complete SEO audits, with the evidence and artifacts intact.</h1>
+        <p id="description">Private hosted access to the original Claude SEO workflow.</p>
+      </div>
+      <form id="audit-form">
+        <label for="url">Website to audit</label>
+        <input id="url" name="url" type="url" required placeholder="https://example.com/" autocomplete="url">
+        <label for="type">Audit workflow</label>
+        <select id="type" name="type"></select>
+        <button type="submit">Start audit</button>
+        <p id="form-message" role="status"></p>
+        <small id="cost-guards"></small>
+      </form>
+    </section>
+    <section class="workspace">
+      <aside>
+        <div class="section-title"><h2>Audit history</h2><button id="refresh" class="text-button">Refresh</button></div>
+        <div id="audit-list"></div>
+      </aside>
+      <article>
+        <div id="empty"><h2>Select an audit</h2><p>Completed full audits include the report, action plan, structured data, specialist findings, and screenshots.</p></div>
+        <div id="report" hidden>
+          <div class="report-head">
+            <div><p class="eyebrow" id="report-type"></p><h2 id="report-title"></h2><a id="report-url" target="_blank" rel="noopener noreferrer"></a></div>
+            <a id="download" class="button-link">Download Markdown</a>
+          </div>
+          <div id="report-status" class="status"></div>
+          <div id="report-content" class="markdown"></div>
+          <section class="artifacts"><h3>Audit artifacts</h3><div id="artifact-list"></div></section>
+        </div>
+      </article>
+    </section>
+  </main>
+  <template id="audit-row"><button class="audit-row"><strong></strong><span class="meta"></span><span class="badge"></span></button></template>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
